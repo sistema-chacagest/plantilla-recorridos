@@ -306,6 +306,7 @@ function subAll(){
   chRef.on("value", function(snap){
     choferes=[];
     if(snap.exists()){ snap.forEach(function(c){ choferes.push(Object.assign({},c.val(),{_key:c.key})); }); }
+    choferes.sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
     renderChoferes(); renderMoviles(); populateForms(); renderAll();
   });
   unsubs.push(function(){ chRef.off("value"); });
@@ -313,6 +314,7 @@ function subAll(){
   mvRef.on("value", function(snap){
     moviles=[];
     if(snap.exists()){ snap.forEach(function(m){ moviles.push(Object.assign({},m.val(),{_key:m.key})); }); }
+    moviles.sort(function(a,b){return a.pat.localeCompare(b.pat);});
     renderMoviles(); populateForms();
   });
   unsubs.push(function(){ mvRef.off("value"); });
