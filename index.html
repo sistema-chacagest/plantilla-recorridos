@@ -100,7 +100,6 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
 .badge{font-size:6.5pt!important;padding:1px 4px!important}
 @page{size:A4 landscape;margin:7mm 8mm}}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -124,7 +123,6 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
     <button class="btn btn-purple btn-sm" onclick="toggleForm('form-fra')">+ Franco</button>
     <button class="btn btn-amber btn-sm" onclick="abrirExportar()">Exportar resumen</button>
     <button class="btn btn-red btn-sm" onclick="imprimirPDF()">Exportar PDF</button>
-    <button class="btn btn-sm" style="background:#6c3483;color:white;border-color:transparent" onclick="exportarJPG()">Exportar JPG</button>
     <button class="btn btn-green btn-sm" onclick="switchTab('mensajes')">Mensajes</button>
   </div>
   <div id="form-rec" class="card fgrid-wrap no-print" style="display:none">
@@ -230,7 +228,6 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
     <div style="display:flex;gap:7px;flex-wrap:wrap">
       <button class="btn btn-amber btn-sm" onclick="abrirExportar()">Exportar resumen</button>
       <button class="btn btn-red btn-sm" onclick="imprimirPDF()">Exportar PDF</button>
-    <button class="btn btn-sm" style="background:#6c3483;color:white;border-color:transparent" onclick="exportarJPG()">Exportar JPG</button>
       <button class="btn btn-green btn-sm" onclick="enviarTodos()">Enviar todos</button>
     </div>
   </div>
@@ -291,91 +288,7 @@ var BASE_REC=[
 
 var todayStr=new Date().toISOString().split("T")[0];
 document.getElementById("fecha").value=todayStr;
-document.getElementById("fecha").addEventListener("change",function(){ unfunction exportarJPG(){
-  // asegurarse de estar en tab planilla
-  ["planilla","choferes","mensajes"].forEach(function(n,i){
-    document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla");
-    document.getElementById("tab-"+n).classList.toggle("active",n==="planilla");
-  });
-  // actualizar header de impresion
-  document.getElementById("print-fecha-txt").innerHTML="Fecha: <strong>"+fmtF(getFecha())+"</strong><br>Rec: "+diaData.recorridos.length+" | Cont: "+diaData.contratados.length+" | Francos: "+diaData.francos.length;
-  // mostrar header de impresion temporalmente
-  var hdr=document.getElementById("print-hdr");
-  hdr.style.display="flex";
-  // ocultar botones y forms temporalmente
-  var topbar=document.querySelector(".topbar");
-  var forms=document.querySelectorAll(".fgrid-wrap");
-  topbar.style.display="none";
-  forms.forEach(function(f){ f.style.display="none"; });
-  var planilla=document.getElementById("tab-planilla");
-  T("Generando imagen...");
-  setTimeout(function(){
-    html2canvas(planilla, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#f5f5f2",
-      logging: false
-    }).then(function(canvas){
-      // restaurar
-      hdr.style.display="none";
-      topbar.style.display="flex";
-      // link de descarga
-      var link=document.createElement("a");
-      link.download="planilla-"+getFecha()+".jpg";
-      link.href=canvas.toDataURL("image/jpeg", 0.95);
-      link.click();
-      T("JPG descargado!");
-    }).catch(function(e){
-      hdr.style.display="none";
-      topbar.style.display="flex";
-      T("Error al generar JPG");
-    });
-  }, 300);
-}
-
-subAll(); function exportarJPG(){
-  // asegurarse de estar en tab planilla
-  ["planilla","choferes","mensajes"].forEach(function(n,i){
-    document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla");
-    document.getElementById("tab-"+n).classList.toggle("active",n==="planilla");
-  });
-  // actualizar header de impresion
-  document.getElementById("print-fecha-txt").innerHTML="Fecha: <strong>"+fmtF(getFecha())+"</strong><br>Rec: "+diaData.recorridos.length+" | Cont: "+diaData.contratados.length+" | Francos: "+diaData.francos.length;
-  // mostrar header de impresion temporalmente
-  var hdr=document.getElementById("print-hdr");
-  hdr.style.display="flex";
-  // ocultar botones y forms temporalmente
-  var topbar=document.querySelector(".topbar");
-  var forms=document.querySelectorAll(".fgrid-wrap");
-  topbar.style.display="none";
-  forms.forEach(function(f){ f.style.display="none"; });
-  var planilla=document.getElementById("tab-planilla");
-  T("Generando imagen...");
-  setTimeout(function(){
-    html2canvas(planilla, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#f5f5f2",
-      logging: false
-    }).then(function(canvas){
-      // restaurar
-      hdr.style.display="none";
-      topbar.style.display="flex";
-      // link de descarga
-      var link=document.createElement("a");
-      link.download="planilla-"+getFecha()+".jpg";
-      link.href=canvas.toDataURL("image/jpeg", 0.95);
-      link.click();
-      T("JPG descargado!");
-    }).catch(function(e){
-      hdr.style.display="none";
-      topbar.style.display="flex";
-      T("Error al generar JPG");
-    });
-  }, 300);
-}
-
-subAll(); });
+document.getElementById("fecha").addEventListener("change",function(){ unsubAll(); subAll(); });
 
 var choferes=[], moviles=[], diaData={recorridos:[],contratados:[],francos:[]};
 var unsubs=[];
@@ -711,48 +624,6 @@ function enviarTodos(){
     setTimeout(function(){ window.open("https://wa.me/"+ch.tel+"?text="+encodeURIComponent(msg),"_blank"); },idx*700);
   });
   T("Abriendo WhatsApp...");
-}
-
-function exportarJPG(){
-  // asegurarse de estar en tab planilla
-  ["planilla","choferes","mensajes"].forEach(function(n,i){
-    document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla");
-    document.getElementById("tab-"+n).classList.toggle("active",n==="planilla");
-  });
-  // actualizar header de impresion
-  document.getElementById("print-fecha-txt").innerHTML="Fecha: <strong>"+fmtF(getFecha())+"</strong><br>Rec: "+diaData.recorridos.length+" | Cont: "+diaData.contratados.length+" | Francos: "+diaData.francos.length;
-  // mostrar header de impresion temporalmente
-  var hdr=document.getElementById("print-hdr");
-  hdr.style.display="flex";
-  // ocultar botones y forms temporalmente
-  var topbar=document.querySelector(".topbar");
-  var forms=document.querySelectorAll(".fgrid-wrap");
-  topbar.style.display="none";
-  forms.forEach(function(f){ f.style.display="none"; });
-  var planilla=document.getElementById("tab-planilla");
-  T("Generando imagen...");
-  setTimeout(function(){
-    html2canvas(planilla, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#f5f5f2",
-      logging: false
-    }).then(function(canvas){
-      // restaurar
-      hdr.style.display="none";
-      topbar.style.display="flex";
-      // link de descarga
-      var link=document.createElement("a");
-      link.download="planilla-"+getFecha()+".jpg";
-      link.href=canvas.toDataURL("image/jpeg", 0.95);
-      link.click();
-      T("JPG descargado!");
-    }).catch(function(e){
-      hdr.style.display="none";
-      topbar.style.display="flex";
-      T("Error al generar JPG");
-    });
-  }, 300);
 }
 
 subAll();
