@@ -16,6 +16,7 @@ input[type=date]{font-size:13px;padding:5px 9px;border:1px solid #ccc;border-rad
 .btn-amber{background:#BA7517;color:white;border-color:transparent}.btn-amber:hover{background:#854F0B}
 .btn-purple{background:#534AB7;color:white;border-color:transparent}.btn-purple:hover{background:#3C3489}
 .btn-red{background:#c0392b;color:white;border-color:transparent}.btn-red:hover{background:#922b21}
+.btn-violet{background:#6c3483;color:white;border-color:transparent}.btn-violet:hover{background:#512e6d}
 .btn-sm{padding:3px 9px;font-size:11px}
 .tabs{display:flex;margin-bottom:1rem;border-bottom:1px solid #ddd}
 .tab{padding:7px 15px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px}
@@ -100,6 +101,7 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
 .badge{font-size:6.5pt!important;padding:1px 4px!important}
 @page{size:A4 landscape;margin:7mm 8mm}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -123,6 +125,7 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
     <button class="btn btn-purple btn-sm" onclick="toggleForm('form-fra')">+ Franco</button>
     <button class="btn btn-amber btn-sm" onclick="abrirExportar()">Exportar resumen</button>
     <button class="btn btn-red btn-sm" onclick="imprimirPDF()">Exportar PDF</button>
+    <button class="btn btn-violet btn-sm" onclick="exportarJPG()">Exportar JPG</button>
     <button class="btn btn-green btn-sm" onclick="switchTab('mensajes')">Mensajes</button>
   </div>
   <div id="form-rec" class="card fgrid-wrap no-print" style="display:none">
@@ -166,34 +169,28 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
   <div class="grid2p">
     <div>
       <div class="col-header col-header-dark"><span>RECORRIDOS DEL DIA</span><span id="cnt-rec" style="font-size:9px;opacity:.75"></span></div>
-      <div class="tbl-wrap">
-        <table><thead><tr>
-          <th class="th-dark" style="width:38px">HORA</th><th class="th-dark">RECORRIDO</th>
-          <th class="th-dark">CHOFER</th><th class="th-dark">MOVIL</th>
-          <th class="th-dark no-print" style="width:20px"></th>
-        </tr></thead><tbody id="tbody-rec"></tbody></table>
-      </div>
+      <div class="tbl-wrap"><table><thead><tr>
+        <th class="th-dark" style="width:38px">HORA</th><th class="th-dark">RECORRIDO</th>
+        <th class="th-dark">CHOFER</th><th class="th-dark">MOVIL</th>
+        <th class="th-dark no-print" style="width:20px"></th>
+      </tr></thead><tbody id="tbody-rec"></tbody></table></div>
     </div>
     <div class="right-col">
       <div>
         <div class="col-header col-header-amber"><span>VIAJES CONTRATADOS</span><span id="cnt-con" style="font-size:9px;opacity:.7"></span></div>
-        <div class="tbl-wrap">
-          <table><thead><tr>
-            <th class="th-amber" style="width:32px">HORA</th><th class="th-amber">RECORRIDO</th>
-            <th class="th-amber">CHOFER</th><th class="th-amber">MOVIL</th>
-            <th class="th-amber">CONTRATANTE</th><th class="th-amber" style="width:38px">REGRESO</th>
-            <th class="th-amber no-print" style="width:20px"></th>
-          </tr></thead><tbody id="tbody-con"></tbody></table>
-        </div>
+        <div class="tbl-wrap"><table><thead><tr>
+          <th class="th-amber" style="width:32px">HORA</th><th class="th-amber">RECORRIDO</th>
+          <th class="th-amber">CHOFER</th><th class="th-amber">MOVIL</th>
+          <th class="th-amber">CONTRATANTE</th><th class="th-amber" style="width:38px">REGRESO</th>
+          <th class="th-amber no-print" style="width:20px"></th>
+        </tr></thead><tbody id="tbody-con"></tbody></table></div>
       </div>
       <div>
         <div class="col-header col-header-purple"><span>PERSONAL DE FRANCO</span><span id="cnt-fra" style="font-size:9px;opacity:.7"></span></div>
-        <div class="tbl-wrap">
-          <table><thead><tr>
-            <th class="th-purple">CHOFER</th><th class="th-purple" style="width:70px">MOTIVO</th>
-            <th class="th-purple">DETALLE</th><th class="th-purple no-print" style="width:20px"></th>
-          </tr></thead><tbody id="tbody-fra"></tbody></table>
-        </div>
+        <div class="tbl-wrap"><table><thead><tr>
+          <th class="th-purple">CHOFER</th><th class="th-purple" style="width:70px">MOTIVO</th>
+          <th class="th-purple">DETALLE</th><th class="th-purple no-print" style="width:20px"></th>
+        </tr></thead><tbody id="tbody-fra"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -228,6 +225,7 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
     <div style="display:flex;gap:7px;flex-wrap:wrap">
       <button class="btn btn-amber btn-sm" onclick="abrirExportar()">Exportar resumen</button>
       <button class="btn btn-red btn-sm" onclick="imprimirPDF()">Exportar PDF</button>
+      <button class="btn btn-violet btn-sm" onclick="exportarJPG()">Exportar JPG</button>
       <button class="btn btn-green btn-sm" onclick="enviarTodos()">Enviar todos</button>
     </div>
   </div>
@@ -362,7 +360,7 @@ function populateForms(){
     var el=document.getElementById(id); if(!el) return;
     var cur=el.value;
     el.innerHTML="<option value=\"\">Asignar</option>"+choferes.map(function(c){
-      return "<option value=\""+c.nombre+"\">"+(c.nombre===cur?"selected":"")+">"+c.nombre+"</option>";
+      return "<option value=\""+c.nombre+"\"" +(c.nombre===cur?" selected":"")+">"+c.nombre+"</option>";
     }).join("");
     if(cur) el.value=cur;
   });
@@ -370,7 +368,7 @@ function populateForms(){
     var el=document.getElementById(id); if(!el) return;
     var cur=el.value;
     el.innerHTML="<option value=\"\">Asignar</option>"+moviles.map(function(m){
-      return "<option value=\""+m.pat+"\">"+(m.pat===cur?"selected":"")+">"+m.pat+(m.desc?" ("+m.desc+")":"")+"</option>";
+      return "<option value=\""+m.pat+"\"" +(m.pat===cur?" selected":"")+">"+m.pat+(m.desc?" ("+m.desc+")":"")+"</option>";
     }).join("");
     if(cur) el.value=cur;
   });
@@ -379,15 +377,8 @@ function populateForms(){
 }
 function autoM(n,id){ var ch=choferes.find(function(c){return c.nombre===n;}); if(ch&&ch.movil){ var el=document.getElementById(id); if(el) el.value=ch.movil; } }
 
-// COLOR selects
-function selClass(tipo,val){
-  if(tipo==="c") return val ? "sel sel-c" : "sel";
-  return val ? "sel sel-m" : "sel";
-}
-function cSel(el,tipo){
-  if(el.value){ el.className = tipo==="c" ? "sel sel-c" : "sel sel-m"; }
-  else { el.className = "sel"; }
-}
+function selClass(tipo,val){ if(tipo==="c") return val?"sel sel-c":"sel"; return val?"sel sel-m":"sel"; }
+function cSel(el,tipo){ if(el.value){ el.className=tipo==="c"?"sel sel-c":"sel sel-m"; } else { el.className="sel"; } }
 
 function addMovil(){
   var pat=document.getElementById("mv-pat").value.trim();
@@ -415,7 +406,6 @@ function addChofer(){
 }
 function delChofer(key){ db.ref("choferes/"+key).remove(); }
 function renderChoferes(){
-  // actualizar siempre nf-chofer con todos los choferes disponibles
   var nf=document.getElementById("nf-chofer");
   if(nf){
     var curNf=nf.value;
@@ -544,6 +534,34 @@ function imprimirPDF(){
   setTimeout(function(){ window.print(); },150);
 }
 
+function exportarJPG(){
+  ["planilla","choferes","mensajes"].forEach(function(n,i){ document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla"); document.getElementById("tab-"+n).classList.toggle("active",n==="planilla"); });
+  document.getElementById("print-fecha-txt").innerHTML="Fecha: <strong>"+fmtF(getFecha())+"</strong> | Rec: "+diaData.recorridos.length+" | Cont: "+diaData.contratados.length+" | Francos: "+diaData.francos.length;
+  var hdr=document.getElementById("print-hdr");
+  var topbar=document.querySelector(".topbar");
+  var forms=document.querySelectorAll(".fgrid-wrap");
+  hdr.style.display="flex";
+  topbar.style.display="none";
+  forms.forEach(function(f){ f.style.display="none"; });
+  T("Generando imagen...");
+  setTimeout(function(){
+    html2canvas(document.getElementById("tab-planilla"),{ scale:2, useCORS:true, backgroundColor:"#f5f5f2", logging:false })
+    .then(function(canvas){
+      hdr.style.display="none";
+      topbar.style.display="flex";
+      var link=document.createElement("a");
+      link.download="planilla-"+getFecha()+".jpg";
+      link.href=canvas.toDataURL("image/jpeg",0.95);
+      link.click();
+      T("JPG descargado!");
+    }).catch(function(){
+      hdr.style.display="none";
+      topbar.style.display="flex";
+      T("Error al generar JPG");
+    });
+  },300);
+}
+
 function buildResumen(){
   var f=getFecha();
   var rec=diaData.recorridos.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
@@ -561,7 +579,13 @@ function buildResumen(){
   txt+="\n"+sep+"\nTotal: "+rec.length+" recorridos | "+con.length+" contratados | "+fra.length+" francos\n";
   return txt;
 }
-function abrirExportar(){ var txt=buildResumen(); document.getElementById("modal-titulo").textContent="Resumen del "+fmtF(getFecha()); document.getElementById("export-prev").textContent=txt; document.getElementById("wa-resumen").href="https://wa.me/?text="+encodeURIComponent(txt); document.getElementById("modal-exportar").classList.add("open"); }
+function abrirExportar(){
+  var txt=buildResumen();
+  document.getElementById("modal-titulo").textContent="Resumen del "+fmtF(getFecha());
+  document.getElementById("export-prev").textContent=txt;
+  document.getElementById("wa-resumen").href="https://wa.me/?text="+encodeURIComponent(txt);
+  document.getElementById("modal-exportar").classList.add("open");
+}
 function cerrarModal(){ document.getElementById("modal-exportar").classList.remove("open"); }
 document.getElementById("modal-exportar").addEventListener("click",function(e){ if(e.target===this) cerrarModal(); });
 function copiarResumen(){ navigator.clipboard.writeText(document.getElementById("export-prev").textContent).then(function(){ T("Copiado"); }); }
@@ -627,6 +651,7 @@ function enviarTodos(){
 }
 
 subAll();
+
 </script>
 </body>
 </html>
