@@ -413,6 +413,15 @@ function addChofer(){
 }
 function delChofer(key){ db.ref("choferes/"+key).remove(); }
 function renderChoferes(){
+  // actualizar siempre nf-chofer con todos los choferes disponibles
+  var nf=document.getElementById("nf-chofer");
+  if(nf){
+    var curNf=nf.value;
+    nf.innerHTML="<option value=\"\">Asignar</option>"+choferes.map(function(c){
+      return "<option value=\""+c.nombre+"\"" +(c.nombre===curNf?" selected":"")+">"+c.nombre+"</option>";
+    }).join("");
+    if(curNf) nf.value=curNf;
+  }
   var tb=document.getElementById("tbody-choferes");
   if(!choferes.length){ tb.innerHTML="<tr><td colspan=\"5\" class=\"empty-td\">Sin choferes cargados</td></tr>"; return; }
   tb.innerHTML=choferes.map(function(c){
