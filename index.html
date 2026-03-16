@@ -39,7 +39,9 @@ td{padding:4px 6px;border-bottom:1px solid #f0f0ec;vertical-align:middle;font-si
 tr:nth-child(even) td{background:#fafaf7}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#f0f6ff}
-select.sel{font-size:10px;padding:2px 4px;border:1px solid #ccc;border-radius:5px;background:white;color:#1a1a1a;width:100%;max-width:115px}
+select.sel{font-size:10px;padding:2px 4px;border:1px solid #ccc;border-radius:5px;background:white;color:#1a1a1a;width:100%;max-width:115px;transition:all .2s}
+select.sel-c{background:#d4f5ec;color:#0F6E56;font-weight:700;border:1px solid #1D9E75}
+select.sel-m{background:#daeeff;color:#0C447C;font-weight:700;border:1px solid #378ADD}
 .hora-bold{font-weight:700;white-space:nowrap}
 .badge{display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px}
 .badge-green{background:#EAF3DE;color:#27500A}
@@ -66,39 +68,37 @@ input.il{font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:5px;
 .empty-td{text-align:center;padding:1rem;color:#bbb;font-style:italic;font-size:10px}
 a{text-decoration:none}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block;margin-right:4px}
-.sync-dot.ok{background:#1D9E75}
-.sync-dot.err{background:#c0392b}
+.sync-dot.ok{background:#1D9E75}.sync-dot.err{background:#c0392b}
 .sync-bar{display:flex;align-items:center;font-size:11px;color:#666;gap:3px}
 .print-hdr{display:none}
 @media print{
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  body{background:white!important;margin:0;padding:0}
-  .app{max-width:100%;padding:0;margin:0}
-  .tabs,.topbar,.btn,.modal-bg,.toast,#tab-choferes,#tab-mensajes,.no-print,.fgrid-wrap{display:none!important}
-  #tab-planilla{display:block!important}
-  .print-hdr{display:flex!important;align-items:center;gap:6px;margin-bottom:3mm;padding-bottom:2.5mm;border-bottom:2px solid #c0392b}
-  .print-logo{width:12mm;height:12mm;object-fit:contain}
-  .print-titles h2{font-size:11pt;font-weight:700}
-  .print-titles p{font-size:7pt;color:#666;margin-top:1px}
-  .print-fecha{margin-left:auto;font-size:8pt;color:#555;text-align:right;line-height:1.5}
-  .grid2p{display:grid!important;grid-template-columns:52% 46%;gap:4mm;align-items:start}
-  .right-col{display:flex!important;flex-direction:column;gap:3mm}
-  table{font-size:7pt!important}
-  thead th{font-size:6.5pt!important;padding:2.5px 4px!important}
-  td{padding:2px 4px!important;font-size:7pt!important;border-bottom:0.3px solid #eee!important}
-  tr:nth-child(even) td{background:#f9f9f7!important}
-  .tbl-wrap{border:0.5px solid #ccc!important;border-radius:0!important}
-  thead th.th-dark{background:#2c2c2c!important;color:white!important}
-  thead th.th-amber{background:#faeeda!important;color:#854F0B!important}
-  thead th.th-purple{background:#EEEDFE!important;color:#3C3489!important}
-  .col-header-dark{background:#2c2c2c!important;color:white!important}
-  .col-header-amber{background:#faeeda!important;color:#854F0B!important}
-  .col-header-purple{background:#EEEDFE!important;color:#3C3489!important}
-  select.sel{border:none!important;background:transparent!important;font-weight:700;font-size:7pt!important;padding:0!important;max-width:100%}
-  .col-header{font-size:7.5pt!important;padding:3px 5px!important;margin-bottom:2px!important}
-  .badge{font-size:6.5pt!important;padding:1px 4px!important}
-  @page{size:A4 landscape;margin:7mm 8mm}
-}
+*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+body{background:white!important;margin:0;padding:0}
+.app{max-width:100%;padding:0;margin:0}
+.tabs,.topbar,.btn,.modal-bg,.toast,#tab-choferes,#tab-mensajes,.no-print,.fgrid-wrap{display:none!important}
+#tab-planilla{display:block!important}
+.print-hdr{display:flex!important;align-items:center;gap:6px;margin-bottom:3mm;padding-bottom:2.5mm;border-bottom:2px solid #c0392b}
+.print-logo{width:12mm;height:12mm;object-fit:contain}
+.print-titles h2{font-size:11pt;font-weight:700}
+.print-titles p{font-size:7pt;color:#666;margin-top:1px}
+.print-fecha{margin-left:auto;font-size:8pt;color:#555;text-align:right;line-height:1.5}
+.grid2p{display:grid!important;grid-template-columns:52% 46%;gap:4mm;align-items:start}
+.right-col{display:flex!important;flex-direction:column;gap:3mm}
+table{font-size:7pt!important}
+thead th{font-size:6.5pt!important;padding:2.5px 4px!important}
+td{padding:2px 4px!important;font-size:7pt!important;border-bottom:0.3px solid #eee!important}
+tr:nth-child(even) td{background:#f9f9f7!important}
+.tbl-wrap{border:0.5px solid #ccc!important;border-radius:0!important}
+thead th.th-dark{background:#2c2c2c!important;color:white!important}
+thead th.th-amber{background:#faeeda!important;color:#854F0B!important}
+thead th.th-purple{background:#EEEDFE!important;color:#3C3489!important}
+.col-header-dark{background:#2c2c2c!important;color:white!important}
+.col-header-amber{background:#faeeda!important;color:#854F0B!important}
+.col-header-purple{background:#EEEDFE!important;color:#3C3489!important}
+select.sel,select.sel-c,select.sel-m{border:none!important;background:transparent!important;font-weight:700;font-size:7pt!important;padding:0!important;max-width:100%}
+.col-header{font-size:7.5pt!important;padding:3px 5px!important;margin-bottom:2px!important}
+.badge{font-size:6.5pt!important;padding:1px 4px!important}
+@page{size:A4 landscape;margin:7mm 8mm}}
 </style>
 </head>
 <body>
@@ -165,9 +165,7 @@ a{text-decoration:none}
   </div>
   <div class="grid2p">
     <div>
-      <div class="col-header col-header-dark">
-        <span>RECORRIDOS DEL DIA</span><span id="cnt-rec" style="font-size:9px;opacity:.75"></span>
-      </div>
+      <div class="col-header col-header-dark"><span>RECORRIDOS DEL DIA</span><span id="cnt-rec" style="font-size:9px;opacity:.75"></span></div>
       <div class="tbl-wrap">
         <table><thead><tr>
           <th class="th-dark" style="width:38px">HORA</th><th class="th-dark">RECORRIDO</th>
@@ -178,9 +176,7 @@ a{text-decoration:none}
     </div>
     <div class="right-col">
       <div>
-        <div class="col-header col-header-amber">
-          <span>VIAJES CONTRATADOS</span><span id="cnt-con" style="font-size:9px;opacity:.7"></span>
-        </div>
+        <div class="col-header col-header-amber"><span>VIAJES CONTRATADOS</span><span id="cnt-con" style="font-size:9px;opacity:.7"></span></div>
         <div class="tbl-wrap">
           <table><thead><tr>
             <th class="th-amber" style="width:32px">HORA</th><th class="th-amber">RECORRIDO</th>
@@ -191,9 +187,7 @@ a{text-decoration:none}
         </div>
       </div>
       <div>
-        <div class="col-header col-header-purple">
-          <span>PERSONAL DE FRANCO</span><span id="cnt-fra" style="font-size:9px;opacity:.7"></span>
-        </div>
+        <div class="col-header col-header-purple"><span>PERSONAL DE FRANCO</span><span id="cnt-fra" style="font-size:9px;opacity:.7"></span></div>
         <div class="tbl-wrap">
           <table><thead><tr>
             <th class="th-purple">CHOFER</th><th class="th-purple" style="width:70px">MOTIVO</th>
@@ -215,10 +209,8 @@ a{text-decoration:none}
     </div>
   </div>
   <div class="tbl-wrap" style="margin-bottom:1rem">
-    <table>
-      <thead><tr><th class="th-dark"></th><th class="th-dark">Nombre</th><th class="th-dark">WhatsApp</th><th class="th-dark">Movil habitual</th><th class="th-dark"></th></tr></thead>
-      <tbody id="tbody-choferes"></tbody>
-    </table>
+    <table><thead><tr><th class="th-dark"></th><th class="th-dark">Nombre</th><th class="th-dark">WhatsApp</th><th class="th-dark">Movil habitual</th><th class="th-dark"></th></tr></thead>
+    <tbody id="tbody-choferes"></tbody></table>
   </div>
   <div class="card">
     <div style="font-size:11px;font-weight:700;margin-bottom:7px;color:#666">Moviles / Vehiculos</div>
@@ -256,35 +248,47 @@ a{text-decoration:none}
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
-
 firebase.initializeApp({ databaseURL: "https://recorridosnoroeste-default-rtdb.firebaseio.com" });
-const db = firebase.database();
+var db = firebase.database();
 
-db.ref('.info/connected').on('value', function(s) {
-  var d=document.getElementById('sync-dot'), t=document.getElementById('sync-txt');
-  if(s.val()){d.className='sync-dot ok';t.textContent='conectado';}
-  else{d.className='sync-dot err';t.textContent='sin conexion';}
+db.ref(".info/connected").on("value", function(s) {
+  var d=document.getElementById("sync-dot"), t=document.getElementById("sync-txt");
+  if(s.val()){d.className="sync-dot ok";t.textContent="conectado";}
+  else{d.className="sync-dot err";t.textContent="sin conexion";}
 });
 
 var BASE_REC=[
-  {hora:'0:00',recorrido:'La Anonima'},{hora:'5:00',recorrido:'Molino'},
-  {hora:'6:00',recorrido:'La Anonima'},{hora:'8:00',recorrido:'Ferrari'},
-  {hora:'8:00',recorrido:'La Anonima'},{hora:'8:00',recorrido:'Molino'},
-  {hora:'8:30',recorrido:'Don Mario'},{hora:'8:30',recorrido:'Don Mario'},
-  {hora:'8:30',recorrido:'Don Mario'},{hora:'8:30',recorrido:'Don Mario'},
-  {hora:'8:30',recorrido:'Don Mario'},{hora:'8:30',recorrido:'Crusamiento'},
-  {hora:'13:00',recorrido:'Molino'},{hora:'14:00',recorrido:'La Anonima'},
-  {hora:'14:00',recorrido:'Don Mario'},{hora:'15:00',recorrido:'La Anonima'},
-  {hora:'16:00',recorrido:'Ferrari'},{hora:'16:00',recorrido:'Molino'},
-  {hora:'17:00',recorrido:'La Anonima'},{hora:'17:30',recorrido:'Don Mario'},
-  {hora:'17:30',recorrido:'Don Mario'},{hora:'17:30',recorrido:'Don Mario'},
-  {hora:'17:30',recorrido:'Don Mario'},{hora:'17:30',recorrido:'Crusamiento'},
-  {hora:'21:00',recorrido:'Molino'},{hora:'23:00',recorrido:'La Anonima'}
+  {hora:"0:00",recorrido:"La Anonima"},
+  {hora:"5:00",recorrido:"Molino"},
+  {hora:"6:00",recorrido:"La Anonima"},
+  {hora:"8:00",recorrido:"Ferrari"},
+  {hora:"8:00",recorrido:"La Anonima"},
+  {hora:"8:00",recorrido:"Molino"},
+  {hora:"8:30",recorrido:"Don Mario"},
+  {hora:"8:30",recorrido:"Don Mario"},
+  {hora:"8:30",recorrido:"Don Mario"},
+  {hora:"8:30",recorrido:"Don Mario"},
+  {hora:"8:30",recorrido:"Don Mario"},
+  {hora:"8:30",recorrido:"Crusamiento"},
+  {hora:"13:00",recorrido:"Molino"},
+  {hora:"14:00",recorrido:"La Anonima"},
+  {hora:"14:00",recorrido:"Don Mario"},
+  {hora:"15:00",recorrido:"La Anonima"},
+  {hora:"16:00",recorrido:"Ferrari"},
+  {hora:"16:00",recorrido:"Molino"},
+  {hora:"17:00",recorrido:"La Anonima"},
+  {hora:"17:30",recorrido:"Don Mario"},
+  {hora:"17:30",recorrido:"Don Mario"},
+  {hora:"17:30",recorrido:"Don Mario"},
+  {hora:"17:30",recorrido:"Don Mario"},
+  {hora:"17:30",recorrido:"Crusamiento"},
+  {hora:"21:00",recorrido:"Molino"},
+  {hora:"23:00",recorrido:"La Anonima"},
 ];
 
-var todayStr=new Date().toISOString().split('T')[0];
-document.getElementById('fecha').value=todayStr;
-document.getElementById('fecha').addEventListener('change',function(){ unsubAll(); subAll(); });
+var todayStr=new Date().toISOString().split("T")[0];
+document.getElementById("fecha").value=todayStr;
+document.getElementById("fecha").addEventListener("change",function(){ unsubAll(); subAll(); });
 
 var choferes=[], moviles=[], diaData={recorridos:[],contratados:[],francos:[]};
 var unsubs=[];
@@ -298,273 +302,234 @@ function objToArr(obj){
 
 function subAll(){
   var f=getFecha();
-
-  var chRef=db.ref('choferes');
-  chRef.on('value', function(snap){
+  var chRef=db.ref("choferes");
+  chRef.on("value", function(snap){
     choferes=[];
     if(snap.exists()){ snap.forEach(function(c){ choferes.push(Object.assign({},c.val(),{_key:c.key})); }); }
     renderChoferes(); renderMoviles(); populateForms(); renderAll();
   });
-  unsubs.push(function(){ chRef.off('value'); });
-
-  var mvRef=db.ref('moviles');
-  mvRef.on('value', function(snap){
+  unsubs.push(function(){ chRef.off("value"); });
+  var mvRef=db.ref("moviles");
+  mvRef.on("value", function(snap){
     moviles=[];
     if(snap.exists()){ snap.forEach(function(m){ moviles.push(Object.assign({},m.val(),{_key:m.key})); }); }
     renderMoviles(); populateForms();
   });
-  unsubs.push(function(){ mvRef.off('value'); });
-
-  var dRef=db.ref('planillas/'+f);
-  dRef.on('value', function(snap){
+  unsubs.push(function(){ mvRef.off("value"); });
+  var dRef=db.ref("planillas/"+f);
+  dRef.on("value", function(snap){
     var val=snap.val();
     if(!val || !val.recorridos){
       var upd={};
       BASE_REC.forEach(function(r){
         var k=db.ref().push().key;
-        upd['recorridos/'+k]={hora:r.hora,recorrido:r.recorrido,chofer:'',movil:'',nota:''};
+        upd["recorridos/"+k]={hora:r.hora,recorrido:r.recorrido,chofer:"",movil:"",nota:""};
       });
-      db.ref('planillas/'+f).update(upd);
+      db.ref("planillas/"+f).update(upd);
       return;
     }
-    diaData={
-      recorridos: objToArr(val.recorridos),
-      contratados: objToArr(val.contratados),
-      francos: objToArr(val.francos)
-    };
+    diaData={ recorridos:objToArr(val.recorridos), contratados:objToArr(val.contratados), francos:objToArr(val.francos) };
     renderAll();
   });
-  unsubs.push(function(){ dRef.off('value'); });
+  unsubs.push(function(){ dRef.off("value"); });
 }
 
-function T(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2200); }
-function getFecha(){ return document.getElementById('fecha').value||todayStr; }
-function fmtF(f){ if(!f)return''; var p=f.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
-function toMin(h){ var p=(h||'0:00').split(':'); return parseInt(p[0])*60+parseInt(p[1]||0); }
-function ini(n){ return n.trim().split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase(); }
+function T(m){ var t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); },2200); }
+function getFecha(){ return document.getElementById("fecha").value||todayStr; }
+function fmtF(f){ if(!f)return""; var p=f.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
+function toMin(h){ var p=(h||"0:00").split(":"); return parseInt(p[0])*60+parseInt(p[1]||0); }
+function ini(n){ return n.trim().split(" ").map(function(w){return w[0];}).join("").substring(0,2).toUpperCase(); }
 
 function switchTab(name){
-  ['planilla','choferes','mensajes'].forEach(function(n,i){
-    document.querySelectorAll('.tab')[i].classList.toggle('active',n===name);
-    document.getElementById('tab-'+n).classList.toggle('active',n===name);
+  ["planilla","choferes","mensajes"].forEach(function(n,i){
+    document.querySelectorAll(".tab")[i].classList.toggle("active",n===name);
+    document.getElementById("tab-"+n).classList.toggle("active",n===name);
   });
-  if(name==='mensajes') renderMensajes();
+  if(name==="mensajes") renderMensajes();
 }
 
 function toggleForm(id){
-  ['form-rec','form-con','form-fra'].forEach(function(f){
-    if(f===id){
-      var el=document.getElementById(f);
-      var show=el.style.display==='none';
-      el.style.display=show?'block':'none';
-      if(show) populateForms();
-    } else {
-      document.getElementById(f).style.display='none';
-    }
+  ["form-rec","form-con","form-fra"].forEach(function(f){
+    if(f===id){ var el=document.getElementById(f); var show=el.style.display==="none"; el.style.display=show?"block":"none"; if(show) populateForms(); }
+    else document.getElementById(f).style.display="none";
   });
 }
 
 function populateForms(){
-  ['nr-chofer','nc-chofer','nf-chofer'].forEach(function(id){
+  ["nr-chofer","nc-chofer","nf-chofer"].forEach(function(id){
     var el=document.getElementById(id); if(!el) return;
     var cur=el.value;
-    el.innerHTML='<option value="">Asignar</option>'+choferes.map(function(c){
-      return '<option value="'+c.nombre+'"'+( c.nombre===cur?' selected':'')+'>'+c.nombre+'</option>';
-    }).join('');
+    el.innerHTML="<option value=\"\">Asignar</option>"+choferes.map(function(c){
+      return "<option value=\""+c.nombre+"\">"+(c.nombre===cur?"selected":"")+">"+c.nombre+"</option>";
+    }).join("");
+    if(cur) el.value=cur;
   });
-  ['nr-movil','nc-movil'].forEach(function(id){
+  ["nr-movil","nc-movil"].forEach(function(id){
     var el=document.getElementById(id); if(!el) return;
     var cur=el.value;
-    el.innerHTML='<option value="">Asignar</option>'+moviles.map(function(m){
-      return '<option value="'+m.pat+'"'+(m.pat===cur?' selected':'')+'>'+m.pat+(m.desc?' ('+m.desc+')':'')+'</option>';
-    }).join('');
+    el.innerHTML="<option value=\"\">Asignar</option>"+moviles.map(function(m){
+      return "<option value=\""+m.pat+"\">"+(m.pat===cur?"selected":"")+">"+m.pat+(m.desc?" ("+m.desc+")":"")+"</option>";
+    }).join("");
+    if(cur) el.value=cur;
   });
-  var nc=document.getElementById('nr-chofer');
-  if(nc) nc.onchange=function(){ autoM(this.value,'nr-movil'); };
-  var cc=document.getElementById('nc-chofer');
-  if(cc) cc.onchange=function(){ autoM(this.value,'nc-movil'); };
+  var nc=document.getElementById("nr-chofer"); if(nc) nc.onchange=function(){ autoM(this.value,"nr-movil"); };
+  var cc=document.getElementById("nc-chofer"); if(cc) cc.onchange=function(){ autoM(this.value,"nc-movil"); };
 }
-function autoM(n,id){
-  var ch=choferes.find(function(c){return c.nombre===n;});
-  if(ch&&ch.movil){ var el=document.getElementById(id); if(el) el.value=ch.movil; }
+function autoM(n,id){ var ch=choferes.find(function(c){return c.nombre===n;}); if(ch&&ch.movil){ var el=document.getElementById(id); if(el) el.value=ch.movil; } }
+
+// COLOR selects
+function selClass(tipo,val){
+  if(tipo==="c") return val ? "sel sel-c" : "sel";
+  return val ? "sel sel-m" : "sel";
+}
+function cSel(el,tipo){
+  if(el.value){ el.className = tipo==="c" ? "sel sel-c" : "sel sel-m"; }
+  else { el.className = "sel"; }
 }
 
 function addMovil(){
-  var pat=document.getElementById('mv-pat').value.trim();
-  var desc=document.getElementById('mv-desc').value.trim();
-  if(!pat) return T('Ingresa la patente');
-  db.ref('moviles').push({pat:pat,desc:desc}).then(function(){ T('Vehiculo agregado'); });
-  document.getElementById('mv-pat').value='';
-  document.getElementById('mv-desc').value='';
+  var pat=document.getElementById("mv-pat").value.trim();
+  var desc=document.getElementById("mv-desc").value.trim();
+  if(!pat) return T("Ingresa la patente");
+  db.ref("moviles").push({pat:pat,desc:desc}).then(function(){ T("Vehiculo agregado"); });
+  document.getElementById("mv-pat").value=""; document.getElementById("mv-desc").value="";
 }
-function delMovil(key){ db.ref('moviles/'+key).remove(); }
+function delMovil(key){ db.ref("moviles/"+key).remove(); }
 function renderMoviles(){
-  var el=document.getElementById('lista-moviles');
-  if(!moviles.length){ el.innerHTML='<span style="font-size:11px;color:#aaa">Sin vehiculos</span>'; return; }
+  var el=document.getElementById("lista-moviles");
+  if(!moviles.length){ el.innerHTML="<span style=\"font-size:11px;color:#aaa\">Sin vehiculos</span>"; return; }
   el.innerHTML=moviles.map(function(m){
-    return '<span class="badge badge-green" style="font-size:11px;padding:3px 9px">'+m.pat+(m.desc?' - '+m.desc:'')+
-      ' <span onclick="delMovil(\''+m._key+'\')" style="margin-left:4px;cursor:pointer;opacity:.6">x</span></span>';
-  }).join('');
+    return "<span class=\"badge badge-green\" style=\"font-size:11px;padding:3px 9px\">"+m.pat+(m.desc?" - "+m.desc:"")+" <span onclick=\"delMovil('"+m._key+"')\" style=\"margin-left:4px;cursor:pointer;opacity:.6\">x</span></span>";
+  }).join("");
 }
 
 function addChofer(){
-  var n=document.getElementById('ch-n').value.trim();
-  var t=document.getElementById('ch-t').value.trim();
-  var m=document.getElementById('ch-m').value.trim();
-  if(!n||!t) return T('Nombre y telefono requeridos');
-  db.ref('choferes').push({nombre:n,tel:t,movil:m})
-    .then(function(){ T('Chofer agregado'); })
-    .catch(function(e){ T('Error: '+e.message); });
-  document.getElementById('ch-n').value='';
-  document.getElementById('ch-t').value='';
-  document.getElementById('ch-m').value='';
+  var n=document.getElementById("ch-n").value.trim();
+  var t=document.getElementById("ch-t").value.trim();
+  var m=document.getElementById("ch-m").value.trim();
+  if(!n||!t) return T("Nombre y telefono requeridos");
+  db.ref("choferes").push({nombre:n,tel:t,movil:m}).then(function(){ T("Chofer agregado"); }).catch(function(e){ T("Error: "+e.message); });
+  document.getElementById("ch-n").value=""; document.getElementById("ch-t").value=""; document.getElementById("ch-m").value="";
 }
-function delChofer(key){ db.ref('choferes/'+key).remove(); }
+function delChofer(key){ db.ref("choferes/"+key).remove(); }
 function renderChoferes(){
-  var tb=document.getElementById('tbody-choferes');
-  if(!choferes.length){ tb.innerHTML='<tr><td colspan="5" class="empty-td">Sin choferes cargados</td></tr>'; return; }
+  var tb=document.getElementById("tbody-choferes");
+  if(!choferes.length){ tb.innerHTML="<tr><td colspan=\"5\" class=\"empty-td\">Sin choferes cargados</td></tr>"; return; }
   tb.innerHTML=choferes.map(function(c){
-    return '<tr>'+
-      '<td><div class="avatar">'+ini(c.nombre)+'</div></td>'+
-      '<td style="font-weight:600">'+c.nombre+'</td>'+
-      '<td style="color:#666">'+c.tel+'</td>'+
-      '<td><span class="badge badge-green">'+(c.movil||'-')+'</span></td>'+
-      '<td><button class="btn btn-sm" style="color:#c0392b;border:none" onclick="delChofer(\''+c._key+'\')">Eliminar</button></td>'+
-    '</tr>';
-  }).join('');
+    return "<tr><td><div class=\"avatar\">"+ini(c.nombre)+"</div></td><td style=\"font-weight:600\">"+c.nombre+"</td><td style=\"color:#666\">"+c.tel+"</td><td><span class=\"badge badge-green\">"+(c.movil||"-")+"</span></td><td><button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delChofer('"+c._key+"')\" >Eliminar</button></td></tr>";
+  }).join("");
 }
 
 function cOpts(s){
-  return '<option value="">Asignar</option>'+choferes.map(function(c){
-    return '<option value="'+c.nombre+'"'+(c.nombre===s?' selected':'')+'>'+c.nombre+'</option>';
-  }).join('');
+  return "<option value=\"\">Asignar</option>"+choferes.map(function(c){
+    return "<option value=\""+c.nombre+"\"" +(c.nombre===s?" selected":"")+">"+c.nombre+"</option>";
+  }).join("");
 }
 function mOpts(s){
-  return '<option value="">Asignar</option>'+moviles.map(function(m){
-    return '<option value="'+m.pat+'"'+(m.pat===s?' selected':'')+'>'+m.pat+(m.desc?' ('+m.desc+')':'')+'</option>';
-  }).join('');
+  return "<option value=\"\">Asignar</option>"+moviles.map(function(m){
+    return "<option value=\""+m.pat+"\"" +(m.pat===s?" selected":"")+">"+m.pat+(m.desc?" ("+m.desc+")":"")+"</option>";
+  }).join("");
 }
 
 function agregarRecorrido(){
-  var hora=document.getElementById('nr-hora').value.trim();
-  var rec=document.getElementById('nr-rec').value.trim();
-  var chofer=document.getElementById('nr-chofer').value;
-  var movil=document.getElementById('nr-movil').value;
-  var nota=document.getElementById('nr-nota').value.trim();
-  if(!hora||!rec) return T('Hora y recorrido requeridos');
-  db.ref('planillas/'+getFecha()+'/recorridos').push({hora:hora,recorrido:rec,chofer:chofer,movil:movil,nota:nota});
-  ['nr-hora','nr-rec','nr-nota'].forEach(function(id){ document.getElementById(id).value=''; });
-  document.getElementById('nr-chofer').value='';
-  document.getElementById('nr-movil').value='';
-  document.getElementById('form-rec').style.display='none';
-  T('Recorrido agregado');
+  var hora=document.getElementById("nr-hora").value.trim();
+  var rec=document.getElementById("nr-rec").value.trim();
+  var chofer=document.getElementById("nr-chofer").value;
+  var movil=document.getElementById("nr-movil").value;
+  var nota=document.getElementById("nr-nota").value.trim();
+  if(!hora||!rec) return T("Hora y recorrido requeridos");
+  db.ref("planillas/"+getFecha()+"/recorridos").push({hora:hora,recorrido:rec,chofer:chofer,movil:movil,nota:nota});
+  ["nr-hora","nr-rec","nr-nota"].forEach(function(id){ document.getElementById(id).value=""; });
+  document.getElementById("nr-chofer").value=""; document.getElementById("nr-movil").value="";
+  document.getElementById("form-rec").style.display="none"; T("Recorrido agregado");
 }
 function updRec(key,campo,val){
   var upd={}; upd[campo]=val;
-  if(campo==='chofer'&&val){
-    var ch=choferes.find(function(c){return c.nombre===val;});
-    var r=diaData.recorridos.find(function(x){return x._key===key;});
-    if(ch&&ch.movil&&(!r||!r.movil)) upd.movil=ch.movil;
-  }
-  db.ref('planillas/'+getFecha()+'/recorridos/'+key).update(upd);
+  if(campo==="chofer"&&val){ var ch=choferes.find(function(c){return c.nombre===val;}); var r=diaData.recorridos.find(function(x){return x._key===key;}); if(ch&&ch.movil&&(!r||!r.movil)) upd.movil=ch.movil; }
+  db.ref("planillas/"+getFecha()+"/recorridos/"+key).update(upd);
 }
-function delRec(key){ db.ref('planillas/'+getFecha()+'/recorridos/'+key).remove(); }
+function delRec(key){ db.ref("planillas/"+getFecha()+"/recorridos/"+key).remove(); }
 function renderRecorridos(){
   var filas=diaData.recorridos.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
-  var tb=document.getElementById('tbody-rec');
-  document.getElementById('cnt-rec').textContent=filas.length+' registros';
-  if(!filas.length){ tb.innerHTML='<tr><td colspan="5" class="empty-td">Sin recorridos</td></tr>'; return; }
+  var tb=document.getElementById("tbody-rec");
+  document.getElementById("cnt-rec").textContent=filas.length+" registros";
+  if(!filas.length){ tb.innerHTML="<tr><td colspan=\"5\" class=\"empty-td\">Sin recorridos</td></tr>"; return; }
   tb.innerHTML=filas.map(function(r){
-    return '<tr>'+
-      '<td class="hora-bold">'+r.hora+'</td>'+
-      '<td style="font-weight:500">'+r.recorrido+'</td>'+
-      '<td><select class="sel" onchange="updRec(\''+r._key+'\',\'chofer\',this.value)">'+cOpts(r.chofer)+'</select></td>'+
-      '<td><select class="sel" onchange="updRec(\''+r._key+'\',\'movil\',this.value)">'+mOpts(r.movil)+'</select></td>'+
-      '<td class="no-print"><button class="btn btn-sm" style="color:#c0392b;border:none" onclick="delRec(\''+r._key+'\')">x</button></td>'+
-    '</tr>';
-  }).join('');
+    var clsC=selClass("c",r.chofer); var clsM=selClass("m",r.movil);
+    return "<tr>"+
+      "<td class=\"hora-bold\">"+r.hora+"</td>"+
+      "<td style=\"font-weight:500\">"+r.recorrido+"</td>"+
+      "<td><select class=\""+clsC+"\" onchange=\"updRec('"+r._key+"','chofer',this.value);cSel(this,'c')\">"+cOpts(r.chofer)+"</select></td>"+
+      "<td><select class=\""+clsM+"\" onchange=\"updRec('"+r._key+"','movil',this.value);cSel(this,'m')\">"+mOpts(r.movil)+"</select></td>"+
+      "<td class=\"no-print\"><button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delRec('"+r._key+"')\" >x</button></td>"+
+    "</tr>";
+  }).join("");
 }
 
 function agregarContratado(){
-  var hora=document.getElementById('nc-hora').value.trim();
-  var regreso=document.getElementById('nc-regreso').value.trim();
-  var rec=document.getElementById('nc-rec').value.trim();
-  var chofer=document.getElementById('nc-chofer').value;
-  var movil=document.getElementById('nc-movil').value;
-  var cont=document.getElementById('nc-cont').value.trim();
-  if(!hora||!rec) return T('Hora y recorrido requeridos');
-  db.ref('planillas/'+getFecha()+'/contratados').push({hora:hora,regreso:regreso,recorrido:rec,chofer:chofer,movil:movil,contratante:cont});
-  ['nc-hora','nc-regreso','nc-rec','nc-cont'].forEach(function(id){ document.getElementById(id).value=''; });
-  document.getElementById('nc-chofer').value='';
-  document.getElementById('nc-movil').value='';
-  document.getElementById('form-con').style.display='none';
-  T('Viaje contratado agregado');
+  var hora=document.getElementById("nc-hora").value.trim();
+  var regreso=document.getElementById("nc-regreso").value.trim();
+  var rec=document.getElementById("nc-rec").value.trim();
+  var chofer=document.getElementById("nc-chofer").value;
+  var movil=document.getElementById("nc-movil").value;
+  var cont=document.getElementById("nc-cont").value.trim();
+  if(!hora||!rec) return T("Hora y recorrido requeridos");
+  db.ref("planillas/"+getFecha()+"/contratados").push({hora:hora,regreso:regreso,recorrido:rec,chofer:chofer,movil:movil,contratante:cont});
+  ["nc-hora","nc-regreso","nc-rec","nc-cont"].forEach(function(id){ document.getElementById(id).value=""; });
+  document.getElementById("nc-chofer").value=""; document.getElementById("nc-movil").value="";
+  document.getElementById("form-con").style.display="none"; T("Viaje contratado agregado");
 }
 function updCon(key,campo,val){
   var upd={}; upd[campo]=val;
-  if(campo==='chofer'&&val){
-    var ch=choferes.find(function(c){return c.nombre===val;});
-    var r=diaData.contratados.find(function(x){return x._key===key;});
-    if(ch&&ch.movil&&(!r||!r.movil)) upd.movil=ch.movil;
-  }
-  db.ref('planillas/'+getFecha()+'/contratados/'+key).update(upd);
+  if(campo==="chofer"&&val){ var ch=choferes.find(function(c){return c.nombre===val;}); var r=diaData.contratados.find(function(x){return x._key===key;}); if(ch&&ch.movil&&(!r||!r.movil)) upd.movil=ch.movil; }
+  db.ref("planillas/"+getFecha()+"/contratados/"+key).update(upd);
 }
-function delCon(key){ db.ref('planillas/'+getFecha()+'/contratados/'+key).remove(); }
+function delCon(key){ db.ref("planillas/"+getFecha()+"/contratados/"+key).remove(); }
 function renderContratados(){
   var filas=diaData.contratados.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
-  var tb=document.getElementById('tbody-con');
-  document.getElementById('cnt-con').textContent=filas.length+' registros';
-  if(!filas.length){ tb.innerHTML='<tr><td colspan="7" class="empty-td">Sin viajes contratados</td></tr>'; return; }
+  var tb=document.getElementById("tbody-con");
+  document.getElementById("cnt-con").textContent=filas.length+" registros";
+  if(!filas.length){ tb.innerHTML="<tr><td colspan=\"7\" class=\"empty-td\">Sin viajes contratados</td></tr>"; return; }
   tb.innerHTML=filas.map(function(r){
-    return '<tr>'+
-      '<td class="hora-bold" style="color:#854F0B">'+r.hora+'</td>'+
-      '<td style="font-weight:500">'+r.recorrido+'</td>'+
-      '<td><select class="sel" onchange="updCon(\''+r._key+'\',\'chofer\',this.value)">'+cOpts(r.chofer)+'</select></td>'+
-      '<td><select class="sel" onchange="updCon(\''+r._key+'\',\'movil\',this.value)">'+mOpts(r.movil)+'</select></td>'+
-      '<td><span class="badge badge-amber">'+(r.contratante||'-')+'</span></td>'+
-      '<td style="font-size:10px;color:#666">'+(r.regreso||'-')+'</td>'+
-      '<td class="no-print"><button class="btn btn-sm" style="color:#c0392b;border:none" onclick="delCon(\''+r._key+'\')">x</button></td>'+
-    '</tr>';
-  }).join('');
+    var clsC=selClass("c",r.chofer); var clsM=selClass("m",r.movil);
+    return "<tr>"+
+      "<td class=\"hora-bold\" style=\"color:#854F0B\">"+r.hora+"</td>"+
+      "<td style=\"font-weight:500\">"+r.recorrido+"</td>"+
+      "<td><select class=\""+clsC+"\" onchange=\"updCon('"+r._key+"','chofer',this.value);cSel(this,'c')\">"+cOpts(r.chofer)+"</select></td>"+
+      "<td><select class=\""+clsM+"\" onchange=\"updCon('"+r._key+"','movil',this.value);cSel(this,'m')\">"+mOpts(r.movil)+"</select></td>"+
+      "<td><span class=\"badge badge-amber\">"+(r.contratante||"-")+"</span></td>"+
+      "<td style=\"font-size:10px;color:#666\">"+(r.regreso||"-")+"</td>"+
+      "<td class=\"no-print\"><button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delCon('"+r._key+"')\" >x</button></td>"+
+    "</tr>";
+  }).join("");
 }
 
 function agregarFranco(){
-  var chofer=document.getElementById('nf-chofer').value;
-  var motivo=document.getElementById('nf-motivo').value;
-  var detalle=document.getElementById('nf-detalle').value.trim();
-  if(!chofer) return T('Selecciona un chofer');
-  db.ref('planillas/'+getFecha()+'/francos').push({chofer:chofer,motivo:motivo,detalle:detalle});
-  document.getElementById('nf-chofer').value='';
-  document.getElementById('nf-detalle').value='';
-  document.getElementById('form-fra').style.display='none';
-  T('Franco agregado');
+  var chofer=document.getElementById("nf-chofer").value;
+  var motivo=document.getElementById("nf-motivo").value;
+  var detalle=document.getElementById("nf-detalle").value.trim();
+  if(!chofer) return T("Selecciona un chofer");
+  db.ref("planillas/"+getFecha()+"/francos").push({chofer:chofer,motivo:motivo,detalle:detalle});
+  document.getElementById("nf-chofer").value=""; document.getElementById("nf-detalle").value="";
+  document.getElementById("form-fra").style.display="none"; T("Franco agregado");
 }
-function delFra(key){ db.ref('planillas/'+getFecha()+'/francos/'+key).remove(); }
+function delFra(key){ db.ref("planillas/"+getFecha()+"/francos/"+key).remove(); }
 function renderFrancos(){
   var filas=diaData.francos.slice().sort(function(a,b){return a.chofer.localeCompare(b.chofer);});
-  var tb=document.getElementById('tbody-fra');
-  document.getElementById('cnt-fra').textContent=filas.length+' registros';
-  if(!filas.length){ tb.innerHTML='<tr><td colspan="4" class="empty-td">Sin francos</td></tr>'; return; }
-  var col={Franco:'badge-purple',Vacaciones:'badge-amber',Enfermedad:'badge-red',Licencia:'badge-green',Otro:'badge-green'};
+  var tb=document.getElementById("tbody-fra");
+  document.getElementById("cnt-fra").textContent=filas.length+" registros";
+  if(!filas.length){ tb.innerHTML="<tr><td colspan=\"4\" class=\"empty-td\">Sin francos</td></tr>"; return; }
+  var col={Franco:"badge-purple",Vacaciones:"badge-amber",Enfermedad:"badge-red",Licencia:"badge-green",Otro:"badge-green"};
   tb.innerHTML=filas.map(function(r){
-    return '<tr>'+
-      '<td style="font-weight:600">'+r.chofer+'</td>'+
-      '<td><span class="badge '+(col[r.motivo]||'badge-purple')+'">'+r.motivo+'</span></td>'+
-      '<td style="color:#666;font-size:10px">'+(r.detalle||'-')+'</td>'+
-      '<td class="no-print"><button class="btn btn-sm" style="color:#c0392b;border:none" onclick="delFra(\''+r._key+'\')">x</button></td>'+
-    '</tr>';
-  }).join('');
+    return "<tr><td style=\"font-weight:600\">"+r.chofer+"</td><td><span class=\"badge "+(col[r.motivo]||"badge-purple")+"\">"+r.motivo+"</span></td><td style=\"color:#666;font-size:10px\">"+(r.detalle||"-")+"</td><td class=\"no-print\"><button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delFra('"+r._key+"')\" >x</button></td></tr>";
+  }).join("");
 }
 
 function renderAll(){ renderRecorridos(); renderContratados(); renderFrancos(); }
 
 function imprimirPDF(){
-  document.getElementById('print-fecha-txt').innerHTML=
-    'Fecha: <strong>'+fmtF(getFecha())+'</strong><br>Rec: '+diaData.recorridos.length+' | Cont: '+diaData.contratados.length+' | Francos: '+diaData.francos.length;
-  ['planilla','choferes','mensajes'].forEach(function(n,i){
-    document.querySelectorAll('.tab')[i].classList.toggle('active',n==='planilla');
-    document.getElementById('tab-'+n).classList.toggle('active',n==='planilla');
-  });
+  document.getElementById("print-fecha-txt").innerHTML="Fecha: <strong>"+fmtF(getFecha())+"</strong><br>Rec: "+diaData.recorridos.length+" | Cont: "+diaData.contratados.length+" | Francos: "+diaData.francos.length;
+  ["planilla","choferes","mensajes"].forEach(function(n,i){ document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla"); document.getElementById("tab-"+n).classList.toggle("active",n==="planilla"); });
   setTimeout(function(){ window.print(); },150);
 }
 
@@ -573,101 +538,84 @@ function buildResumen(){
   var rec=diaData.recorridos.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
   var con=diaData.contratados.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
   var fra=diaData.francos.slice().sort(function(a,b){return a.chofer.localeCompare(b.chofer);});
-  var sep='----------------------------------------';
-  var txt='PLANILLA DE RECORRIDOS - '+fmtF(f)+'\n'+sep+'\n\nRECORRIDOS DEL DIA\n';
-  rec.forEach(function(r){ txt+='  '+(r.hora||'').padEnd(6)+' '+(r.recorrido||'').padEnd(16)+' '+(r.chofer||'Sin asignar').padEnd(12)+' '+(r.movil||'-')+(r.nota?' ('+r.nota+')':'')+'\n'; });
-  txt+='\n'+sep+'\nVIAJES CONTRATADOS\n';
-  if(con.length) con.forEach(function(r){ txt+='  '+(r.hora||'').padEnd(6)+' '+(r.recorrido||'').padEnd(16)+' '+(r.chofer||'Sin asignar').padEnd(12)+' '+(r.movil||'-')+(r.contratante?' | '+r.contratante:'')+(r.regreso?' | Reg: '+r.regreso:'')+'\n'; });
-  else txt+='  Sin viajes contratados\n';
-  txt+='\n'+sep+'\nPERSONAL DE FRANCO\n';
-  if(fra.length) fra.forEach(function(r){ txt+='  '+(r.chofer||'').padEnd(14)+' '+(r.motivo||'').padEnd(12)+' '+(r.detalle||'')+'\n'; });
-  else txt+='  Sin francos\n';
-  txt+='\n'+sep+'\nTotal: '+rec.length+' recorridos | '+con.length+' contratados | '+fra.length+' francos\n';
+  var sep="------------------------------------------";
+  var txt="PLANILLA DE RECORRIDOS - "+fmtF(f)+"\n"+sep+"\n\nRECORRIDOS DEL DIA\n";
+  rec.forEach(function(r){ txt+="  "+(r.hora||"").padEnd(6)+" "+(r.recorrido||"").padEnd(16)+" "+(r.chofer||"Sin asignar").padEnd(12)+" "+(r.movil||"-")+(r.nota?" ("+r.nota+")":"")+"\n"; });
+  txt+="\n"+sep+"\nVIAJES CONTRATADOS\n";
+  if(con.length) con.forEach(function(r){ txt+="  "+(r.hora||"").padEnd(6)+" "+(r.recorrido||"").padEnd(16)+" "+(r.chofer||"Sin asignar").padEnd(12)+" "+(r.movil||"-")+(r.contratante?" | "+r.contratante:"")+(r.regreso?" | Reg: "+r.regreso:"")+"\n"; });
+  else txt+="  Sin viajes contratados\n";
+  txt+="\n"+sep+"\nPERSONAL DE FRANCO\n";
+  if(fra.length) fra.forEach(function(r){ txt+="  "+(r.chofer||"").padEnd(14)+" "+(r.motivo||"").padEnd(12)+" "+(r.detalle||"")+"\n"; });
+  else txt+="  Sin francos\n";
+  txt+="\n"+sep+"\nTotal: "+rec.length+" recorridos | "+con.length+" contratados | "+fra.length+" francos\n";
   return txt;
 }
-function abrirExportar(){
-  var txt=buildResumen();
-  document.getElementById('modal-titulo').textContent='Resumen del '+fmtF(getFecha());
-  document.getElementById('export-prev').textContent=txt;
-  document.getElementById('wa-resumen').href='https://wa.me/?text='+encodeURIComponent(txt);
-  document.getElementById('modal-exportar').classList.add('open');
-}
-function cerrarModal(){ document.getElementById('modal-exportar').classList.remove('open'); }
-document.getElementById('modal-exportar').addEventListener('click',function(e){ if(e.target===this) cerrarModal(); });
-function copiarResumen(){ navigator.clipboard.writeText(document.getElementById('export-prev').textContent).then(function(){ T('Copiado'); }); }
+function abrirExportar(){ var txt=buildResumen(); document.getElementById("modal-titulo").textContent="Resumen del "+fmtF(getFecha()); document.getElementById("export-prev").textContent=txt; document.getElementById("wa-resumen").href="https://wa.me/?text="+encodeURIComponent(txt); document.getElementById("modal-exportar").classList.add("open"); }
+function cerrarModal(){ document.getElementById("modal-exportar").classList.remove("open"); }
+document.getElementById("modal-exportar").addEventListener("click",function(e){ if(e.target===this) cerrarModal(); });
+function copiarResumen(){ navigator.clipboard.writeText(document.getElementById("export-prev").textContent).then(function(){ T("Copiado"); }); }
 
 function buildMsg(nombre,rec,con,fra,fecha){
-  var msg='Hola '+nombre+'! Tus tareas del '+fmtF(fecha)+':\n';
-  if(fra.length){ msg+='\nFRANCO:\n'; fra.forEach(function(r){ msg+='  - '+r.motivo+(r.detalle?' - '+r.detalle:'')+'\n'; }); }
-  if(rec.length){ msg+='\nRECORRIDOS:\n'; rec.forEach(function(r){ msg+='  - '+r.hora+' hs - '+r.recorrido+(r.movil?' | Movil: '+r.movil:'')+(r.nota?' ('+r.nota+')':'')+'\n'; }); }
-  if(con.length){ msg+='\nVIAJES CONTRATADOS:\n'; con.forEach(function(r){ msg+='  - '+r.hora+' hs - '+r.recorrido+(r.movil?' | Movil: '+r.movil:'')+(r.contratante?' | Para: '+r.contratante:'')+(r.regreso?' | Reg: '+r.regreso:'')+'\n'; }); }
-  msg+='\nCualquier consulta avisa. Gracias!';
+  var msg="Hola "+nombre+"! Tus tareas del "+fmtF(fecha)+":\n";
+  if(fra.length){ msg+="\nFRANCO:\n"; fra.forEach(function(r){ msg+="  - "+r.motivo+(r.detalle?" - "+r.detalle:"")+"\n"; }); }
+  if(rec.length){ msg+="\nRECORRIDOS:\n"; rec.forEach(function(r){ msg+="  - "+r.hora+" hs - "+r.recorrido+(r.movil?" | Movil: "+r.movil:"")+(r.nota?" ("+r.nota+")":"")+"\n"; }); }
+  if(con.length){ msg+="\nVIAJES CONTRATADOS:\n"; con.forEach(function(r){ msg+="  - "+r.hora+" hs - "+r.recorrido+(r.movil?" | Movil: "+r.movil:"")+(r.contratante?" | Para: "+r.contratante:"")+(r.regreso?" | Reg: "+r.regreso:"")+"\n"; }); }
+  msg+="\nCualquier consulta avisa. Gracias!";
   return msg;
 }
 function renderMensajes(){
   var fecha=getFecha();
-  document.getElementById('msg-titulo').textContent='Mensajes del '+fmtF(fecha);
-  var cont=document.getElementById('contenedor-mensajes');
+  document.getElementById("msg-titulo").textContent="Mensajes del "+fmtF(fecha);
+  var cont=document.getElementById("contenedor-mensajes");
   var por={};
   diaData.recorridos.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].rec.push(r); });
   diaData.contratados.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].con.push(r); });
   diaData.francos.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].fra.push(r); });
   var nombres=Object.keys(por);
-  if(!nombres.length){ cont.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa">No hay choferes asignados aun</div>'; return; }
+  if(!nombres.length){ cont.innerHTML="<div style=\"text-align:center;padding:2rem;color:#aaa\">No hay choferes asignados aun</div>"; return; }
   cont.innerHTML=nombres.map(function(nombre){
-    var ch=choferes.find(function(c){return c.nombre===nombre;});
-    var tel=ch?ch.tel:'';
+    var ch=choferes.find(function(c){return c.nombre===nombre;}); var tel=ch?ch.tel:"";
     var l=por[nombre];
     var rS=l.rec.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
     var cS=l.con.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
     var msg=buildMsg(nombre,rS,cS,l.fra,fecha);
-    var key=nombre.replace(/ /g,'_');
-    return '<div class="msg-card">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
-        '<div style="display:flex;align-items:center;gap:9px">'+
-          '<div class="avatar">'+ini(nombre)+'</div>'+
-          '<div><div style="font-weight:700;font-size:13px">'+nombre+'</div>'+
-          '<div style="font-size:10px;color:#888">'+(tel||'Sin numero')+'</div></div>'+
-        '</div>'+
-        '<div style="display:flex;gap:4px">'+
-          (l.rec.length?'<span class="badge badge-green">'+l.rec.length+' rec.</span>':'')+
-          (l.con.length?'<span class="badge badge-amber">'+l.con.length+' cont.</span>':'')+
-          (l.fra.length?'<span class="badge badge-purple">'+l.fra.length+' franco</span>':'')+
-        '</div>'+
-      '</div>'+
-      '<div class="msg-body" id="msg-'+key+'">'+msg+'</div>'+
-      '<div style="display:flex;gap:7px">'+
-        '<a href="https://wa.me/'+tel+'?text='+encodeURIComponent(msg)+'" target="_blank">'+
-          '<button class="btn btn-green btn-sm">Enviar por WhatsApp</button></a>'+
-        '<button class="btn btn-sm" onclick="copiarMsg(\''+key+'\')">Copiar</button>'+
-      '</div>'+
-    '</div>';
-  }).join('');
+    var key=nombre.replace(/ /g,"_");
+    return "<div class=\"msg-card\">"+
+      "<div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:8px\">"+
+        "<div style=\"display:flex;align-items:center;gap:9px\">"+
+          "<div class=\"avatar\">"+ini(nombre)+"</div>"+
+          "<div><div style=\"font-weight:700;font-size:13px\">"+nombre+"</div><div style=\"font-size:10px;color:#888\">"+(tel||"Sin numero")+"</div></div>"+
+        "</div>"+
+        "<div style=\"display:flex;gap:4px\">"+
+          (l.rec.length?"<span class=\"badge badge-green\">"+l.rec.length+" rec.</span>":"")+
+          (l.con.length?"<span class=\"badge badge-amber\">"+l.con.length+" cont.</span>":"")+
+          (l.fra.length?"<span class=\"badge badge-purple\">"+l.fra.length+" franco</span>":"")+
+        "</div>"+
+      "</div>"+
+      "<div class=\"msg-body\" id=\"msg-"+key+"\">"+msg+"</div>"+
+      "<div style=\"display:flex;gap:7px\">"+
+        "<a href=\"https://wa.me/"+tel+"?text="+encodeURIComponent(msg)+"\" target=\"_blank\"><button class=\"btn btn-green btn-sm\">Enviar por WhatsApp</button></a>"+
+        "<button class=\"btn btn-sm\" onclick=\"copiarMsg('"+key+"')\" >Copiar</button>"+
+      "</div>"+
+    "</div>";
+  }).join("");
 }
-function copiarMsg(key){
-  var el=document.getElementById('msg-'+key);
-  if(el) navigator.clipboard.writeText(el.textContent).then(function(){ T('Copiado'); });
-}
+function copiarMsg(key){ var el=document.getElementById("msg-"+key); if(el) navigator.clipboard.writeText(el.textContent).then(function(){ T("Copiado"); }); }
 function enviarTodos(){
   var fecha=getFecha(); var por={};
   diaData.recorridos.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].rec.push(r); });
   diaData.contratados.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].con.push(r); });
   diaData.francos.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].fra.push(r); });
   Object.keys(por).forEach(function(nombre,idx){
-    var ch=choferes.find(function(c){return c.nombre===nombre;});
-    if(!ch||!ch.tel) return;
+    var ch=choferes.find(function(c){return c.nombre===nombre;}); if(!ch||!ch.tel) return;
     var l=por[nombre];
-    var msg=buildMsg(nombre,
-      l.rec.sort(function(a,b){return toMin(a.hora)-toMin(b.hora);}),
-      l.con.sort(function(a,b){return toMin(a.hora)-toMin(b.hora);}),
-      l.fra,fecha);
-    setTimeout(function(){ window.open('https://wa.me/'+ch.tel+'?text='+encodeURIComponent(msg),'_blank'); },idx*700);
+    var msg=buildMsg(nombre,l.rec.sort(function(a,b){return toMin(a.hora)-toMin(b.hora);}),l.con.sort(function(a,b){return toMin(a.hora)-toMin(b.hora);}),l.fra,fecha);
+    setTimeout(function(){ window.open("https://wa.me/"+ch.tel+"?text="+encodeURIComponent(msg),"_blank"); },idx*700);
   });
-  T('Abriendo WhatsApp...');
+  T("Abriendo WhatsApp...");
 }
 
 subAll();
-
 </script>
 </body>
 </html>
