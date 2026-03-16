@@ -535,6 +535,7 @@ function imprimirPDF(){
 }
 
 function exportarJPG(){
+  // ir a tab planilla
   ["planilla","choferes","mensajes"].forEach(function(n,i){ document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla"); document.getElementById("tab-"+n).classList.toggle("active",n==="planilla"); });
   document.getElementById("print-fecha-txt").innerHTML="Fecha: <strong>"+fmtF(getFecha())+"</strong> | Rec: "+diaData.recorridos.length+" | Cont: "+diaData.contratados.length+" | Francos: "+diaData.francos.length;
   var hdr=document.getElementById("print-hdr");
@@ -543,10 +544,33 @@ function exportarJPG(){
   hdr.style.display="flex";
   topbar.style.display="none";
   forms.forEach(function(f){ f.style.display="none"; });
+  // convertir selects a spans de texto con color
+  var sels=document.querySelectorAll("select.sel,select.sel-c,select.sel-m");
+  var originals=[];
+  sels.forEach(function(sel){
+    var val=sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].text:"-";
+    if(!val||val==="Asignar") val="-";
+    var cls=sel.className;
+    var color="#1a1a1a"; var bg="transparent"; var fw="500";
+    if(cls.indexOf("sel-c")>-1){ color="#0F6E56"; fw="700"; }
+    else if(cls.indexOf("sel-m")>-1){ color="#0C447C"; fw="700"; }
+    var span=document.createElement("span");
+    span.textContent=val;
+    span.style.cssText="color:"+color+";font-weight:"+fw+";font-size:10px;display:inline-block;padding:2px 4px;";
+    sel.parentNode.insertBefore(span,sel);
+    sel.style.display="none";
+    originals.push({sel:sel,span:span});
+  });
+  // ocultar botones x de las filas
+  var btns=document.querySelectorAll(".no-print");
+  btns.forEach(function(b){ b.style.display="none"; });
   T("Generando imagen...");
   setTimeout(function(){
     html2canvas(document.getElementById("tab-planilla"),{ scale:2, useCORS:true, backgroundColor:"#f5f5f2", logging:false })
     .then(function(canvas){
+      // restaurar todo
+      originals.forEach(function(o){ o.sel.style.display=""; o.span.remove(); });
+      btns.forEach(function(b){ b.style.display=""; });
       hdr.style.display="none";
       topbar.style.display="flex";
       var link=document.createElement("a");
@@ -555,11 +579,13 @@ function exportarJPG(){
       link.click();
       T("JPG descargado!");
     }).catch(function(){
+      originals.forEach(function(o){ o.sel.style.display=""; o.span.remove(); });
+      btns.forEach(function(b){ b.style.display=""; });
       hdr.style.display="none";
       topbar.style.display="flex";
       T("Error al generar JPG");
     });
-  },300);
+  },400);
 }
 
 function buildResumen(){
