@@ -13,6 +13,7 @@ input[type=date]{font-size:13px;padding:5px 9px;border:1px solid #ccc;border-rad
 .btn:hover{background:#eee}
 .btn-green{background:#1D9E75;color:white;border-color:transparent}.btn-green:hover{background:#0F6E56}
 .btn-blue{background:#185FA5;color:white;border-color:transparent}.btn-blue:hover{background:#0C447C}
+.btn-teal{background:#117a8b;color:white;border-color:transparent}.btn-teal:hover{background:#0d5f6d}
 .btn-amber{background:#BA7517;color:white;border-color:transparent}.btn-amber:hover{background:#854F0B}
 .btn-purple{background:#534AB7;color:white;border-color:transparent}.btn-purple:hover{background:#3C3489}
 .btn-red{background:#c0392b;color:white;border-color:transparent}.btn-red:hover{background:#922b21}
@@ -120,8 +121,7 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
     <span class="topbar-title">Recorridos del dia</span>
     <input type="date" id="fecha"/>
     <div class="sync-bar"><span class="sync-dot" id="sync-dot"></span><span id="sync-txt">conectando...</span></div>
-    <button class="btn btn-sm" style="background:#117a8b;color:white;border-color:transparent" onclick="copiarDiaAnterior()">Copiar dia anterior</button>
-    <button class="btn btn-sm" style="background:#117a8b;color:white;border-color:transparent" onclick="copiarDiaAnterior()">Copiar dia anterior</button>
+    <button class="btn btn-teal btn-sm" onclick="copiarDiaAnterior()">Copiar dia anterior</button>
     <button class="btn btn-blue btn-sm" onclick="toggleForm('form-rec')">+ Recorrido</button>
     <button class="btn btn-amber btn-sm" onclick="toggleForm('form-con')">+ Contratado</button>
     <button class="btn btn-purple btn-sm" onclick="toggleForm('form-fra')">+ Franco</button>
@@ -250,13 +250,11 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
 <script>
 firebase.initializeApp({ databaseURL: "https://recorridosnoroeste-default-rtdb.firebaseio.com" });
 var db = firebase.database();
-
 db.ref(".info/connected").on("value", function(s) {
   var d=document.getElementById("sync-dot"), t=document.getElementById("sync-txt");
   if(s.val()){d.className="sync-dot ok";t.textContent="conectado";}
   else{d.className="sync-dot err";t.textContent="sin conexion";}
 });
-
 var BASE_REC=[
   {hora:"0:00",recorrido:"La Anonima"},
   {hora:"5:00",recorrido:"Molino"},
@@ -285,145 +283,35 @@ var BASE_REC=[
   {hora:"21:00",recorrido:"Molino"},
   {hora:"23:00",recorrido:"La Anonima"},
 ];
-
 var todayStr=new Date().toISOString().split("T")[0];
 document.getElementById("fecha").value=todayStr;
-document.getElementById("fecha").addEventListener("change",function(){ unfunction copiarDiaAnterior(){
-  var hoy=getFecha();
-  // calcular fecha anterior
-  var d=new Date(hoy+"T00:00:00");
-  d.setDate(d.getDate()-1);
-  var ayer=d.toISOString().split("T")[0];
-  // verificar que el dia actual no tenga datos ya
-  db.ref("planillas/"+hoy).once("value").then(function(snapHoy){
-    var yaHayDatos=snapHoy.exists() && snapHoy.val() && snapHoy.val().recorridos && Object.keys(snapHoy.val().recorridos).length > 0;
-    // contar si tiene choferes asignados
-    var tieneAsignados=false;
-    if(yaHayDatos){
-      var recs=snapHoy.val().recorridos;
-      Object.keys(recs).forEach(function(k){ if(recs[k].chofer) tieneAsignados=true; });
-    }
-    if(tieneAsignados){
-      if(!confirm("El dia ya tiene choferes asignados. Confirmas que queres sobrescribir con el dia anterior?")) return;
-    }
-    // leer dia anterior
-    db.ref("planillas/"+ayer).once("value").then(function(snapAyer){
-      var val=snapAyer.val();
-      if(!val || !val.recorridos){
-        T("No hay datos del dia anterior ("+fmtF(ayer)+")");
-        return;
-      }
-      // copiar recorridos, contratados y francos del dia anterior
-      var upd={};
-      // recorridos: copiar con los mismos choferes y moviles
-      Object.keys(val.recorridos).forEach(function(k){
-        var r=val.recorridos[k];
-        var nuevoKey=db.ref().push().key;
-        upd["planillas/"+hoy+"/recorridos/"+nuevoKey]={
-          hora:r.hora||"",
-          recorrido:r.recorrido||"",
-          chofer:r.chofer||"",
-          movil:r.movil||"",
-          nota:r.nota||""
-        };
-      });
-      // contratados: NO copiar (son viajes especiales de ese dia)
-      // francos: NO copiar (cambian cada dia)
-      // borrar datos actuales del dia y escribir los nuevos
-      db.ref("planillas/"+hoy).remove().then(function(){
-        db.ref().update(upd).then(function(){
-          T("Recorridos copiados del "+fmtF(ayer)+" - Modifica lo que necesites!");
-        });
-      });
-    }).catch(function(){ T("Error al leer el dia anterior"); });
-  });
-}
-
-subAll(); function copiarDiaAnterior(){
-  var hoy=getFecha();
-  // calcular fecha anterior
-  var d=new Date(hoy+"T00:00:00");
-  d.setDate(d.getDate()-1);
-  var ayer=d.toISOString().split("T")[0];
-  // verificar que el dia actual no tenga datos ya
-  db.ref("planillas/"+hoy).once("value").then(function(snapHoy){
-    var yaHayDatos=snapHoy.exists() && snapHoy.val() && snapHoy.val().recorridos && Object.keys(snapHoy.val().recorridos).length > 0;
-    // contar si tiene choferes asignados
-    var tieneAsignados=false;
-    if(yaHayDatos){
-      var recs=snapHoy.val().recorridos;
-      Object.keys(recs).forEach(function(k){ if(recs[k].chofer) tieneAsignados=true; });
-    }
-    if(tieneAsignados){
-      if(!confirm("El dia ya tiene choferes asignados. Confirmas que queres sobrescribir con el dia anterior?")) return;
-    }
-    // leer dia anterior
-    db.ref("planillas/"+ayer).once("value").then(function(snapAyer){
-      var val=snapAyer.val();
-      if(!val || !val.recorridos){
-        T("No hay datos del dia anterior ("+fmtF(ayer)+")");
-        return;
-      }
-      // copiar recorridos, contratados y francos del dia anterior
-      var upd={};
-      // recorridos: copiar con los mismos choferes y moviles
-      Object.keys(val.recorridos).forEach(function(k){
-        var r=val.recorridos[k];
-        var nuevoKey=db.ref().push().key;
-        upd["planillas/"+hoy+"/recorridos/"+nuevoKey]={
-          hora:r.hora||"",
-          recorrido:r.recorrido||"",
-          chofer:r.chofer||"",
-          movil:r.movil||"",
-          nota:r.nota||""
-        };
-      });
-      // contratados: NO copiar (son viajes especiales de ese dia)
-      // francos: NO copiar (cambian cada dia)
-      // borrar datos actuales del dia y escribir los nuevos
-      db.ref("planillas/"+hoy).remove().then(function(){
-        db.ref().update(upd).then(function(){
-          T("Recorridos copiados del "+fmtF(ayer)+" - Modifica lo que necesites!");
-        });
-      });
-    }).catch(function(){ T("Error al leer el dia anterior"); });
-  });
-}
-
-subAll(); });
-
+document.getElementById("fecha").addEventListener("change",function(){ unsubAll(); subAll(); });
 var choferes=[], moviles=[], diaData={recorridos:[],contratados:[],francos:[]};
 var unsubs=[];
-
 function unsubAll(){ unsubs.forEach(function(fn){fn();}); unsubs=[]; }
-
-function objToArr(obj){
-  if(!obj) return [];
-  return Object.keys(obj).map(function(k){ return Object.assign({},obj[k],{_key:k}); });
-}
-
+function objToArr(obj){ if(!obj)return[]; return Object.keys(obj).map(function(k){ return Object.assign({},obj[k],{_key:k}); }); }
 function subAll(){
   var f=getFecha();
   var chRef=db.ref("choferes");
-  chRef.on("value", function(snap){
+  chRef.on("value",function(snap){
     choferes=[];
-    if(snap.exists()){ snap.forEach(function(c){ choferes.push(Object.assign({},c.val(),{_key:c.key})); }); }
+    if(snap.exists()){snap.forEach(function(c){choferes.push(Object.assign({},c.val(),{_key:c.key}));});}
     choferes.sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
     renderChoferes(); renderMoviles(); populateForms(); renderAll();
   });
-  unsubs.push(function(){ chRef.off("value"); });
+  unsubs.push(function(){chRef.off("value");});
   var mvRef=db.ref("moviles");
-  mvRef.on("value", function(snap){
+  mvRef.on("value",function(snap){
     moviles=[];
-    if(snap.exists()){ snap.forEach(function(m){ moviles.push(Object.assign({},m.val(),{_key:m.key})); }); }
+    if(snap.exists()){snap.forEach(function(m){moviles.push(Object.assign({},m.val(),{_key:m.key}));});}
     moviles.sort(function(a,b){return a.pat.localeCompare(b.pat);});
     renderMoviles(); populateForms();
   });
-  unsubs.push(function(){ mvRef.off("value"); });
+  unsubs.push(function(){mvRef.off("value");});
   var dRef=db.ref("planillas/"+f);
-  dRef.on("value", function(snap){
+  dRef.on("value",function(snap){
     var val=snap.val();
-    if(!val || !val.recorridos){
+    if(!val||!val.recorridos){
       var upd={};
       BASE_REC.forEach(function(r){
         var k=db.ref().push().key;
@@ -432,18 +320,16 @@ function subAll(){
       db.ref("planillas/"+f).update(upd);
       return;
     }
-    diaData={ recorridos:objToArr(val.recorridos), contratados:objToArr(val.contratados), francos:objToArr(val.francos) };
+    diaData={recorridos:objToArr(val.recorridos),contratados:objToArr(val.contratados),francos:objToArr(val.francos)};
     renderAll();
   });
-  unsubs.push(function(){ dRef.off("value"); });
+  unsubs.push(function(){dRef.off("value");});
 }
-
-function T(m){ var t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); },2200); }
-function getFecha(){ return document.getElementById("fecha").value||todayStr; }
-function fmtF(f){ if(!f)return""; var p=f.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
-function toMin(h){ var p=(h||"0:00").split(":"); return parseInt(p[0])*60+parseInt(p[1]||0); }
-function ini(n){ return n.trim().split(" ").map(function(w){return w[0];}).join("").substring(0,2).toUpperCase(); }
-
+function T(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(function(){t.classList.remove("show");},2200);}
+function getFecha(){return document.getElementById("fecha").value||todayStr;}
+function fmtF(f){if(!f)return"";var p=f.split("-");return p[2]+"/"+p[1]+"/"+p[0];}
+function toMin(h){var p=(h||"0:00").split(":");return parseInt(p[0])*60+parseInt(p[1]||0);}
+function ini(n){return n.trim().split(" ").map(function(w){return w[0];}).join("").substring(0,2).toUpperCase();}
 function switchTab(name){
   ["planilla","choferes","mensajes"].forEach(function(n,i){
     document.querySelectorAll(".tab")[i].classList.toggle("active",n===name);
@@ -451,64 +337,59 @@ function switchTab(name){
   });
   if(name==="mensajes") renderMensajes();
 }
-
 function toggleForm(id){
   ["form-rec","form-con","form-fra"].forEach(function(f){
-    if(f===id){ var el=document.getElementById(f); var show=el.style.display==="none"; el.style.display=show?"block":"none"; if(show) populateForms(); }
+    if(f===id){var el=document.getElementById(f);var show=el.style.display==="none";el.style.display=show?"block":"none";if(show)populateForms();}
     else document.getElementById(f).style.display="none";
   });
 }
-
 function populateForms(){
   ["nr-chofer","nc-chofer","nf-chofer"].forEach(function(id){
-    var el=document.getElementById(id); if(!el) return;
+    var el=document.getElementById(id);if(!el)return;
     var cur=el.value;
     el.innerHTML="<option value=\"\">Asignar</option>"+choferes.map(function(c){
       return "<option value=\""+c.nombre+"\"" +(c.nombre===cur?" selected":"")+">"+c.nombre+"</option>";
     }).join("");
-    if(cur) el.value=cur;
+    if(cur)el.value=cur;
   });
   ["nr-movil","nc-movil"].forEach(function(id){
-    var el=document.getElementById(id); if(!el) return;
+    var el=document.getElementById(id);if(!el)return;
     var cur=el.value;
     el.innerHTML="<option value=\"\">Asignar</option>"+moviles.map(function(m){
       return "<option value=\""+m.pat+"\"" +(m.pat===cur?" selected":"")+">"+m.pat+(m.desc?" ("+m.desc+")":"")+"</option>";
     }).join("");
-    if(cur) el.value=cur;
+    if(cur)el.value=cur;
   });
-  var nc=document.getElementById("nr-chofer"); if(nc) nc.onchange=function(){ autoM(this.value,"nr-movil"); };
-  var cc=document.getElementById("nc-chofer"); if(cc) cc.onchange=function(){ autoM(this.value,"nc-movil"); };
+  var nc=document.getElementById("nr-chofer");if(nc)nc.onchange=function(){autoM(this.value,"nr-movil");};
+  var cc=document.getElementById("nc-chofer");if(cc)cc.onchange=function(){autoM(this.value,"nc-movil");};
 }
-function autoM(n,id){ var ch=choferes.find(function(c){return c.nombre===n;}); if(ch&&ch.movil){ var el=document.getElementById(id); if(el) el.value=ch.movil; } }
-
-function selClass(tipo,val){ if(tipo==="c") return val?"sel sel-c":"sel"; return val?"sel sel-m":"sel"; }
-function cSel(el,tipo){ if(el.value){ el.className=tipo==="c"?"sel sel-c":"sel sel-m"; } else { el.className="sel"; } }
-
+function autoM(n,id){var ch=choferes.find(function(c){return c.nombre===n;});if(ch&&ch.movil){var el=document.getElementById(id);if(el)el.value=ch.movil;}}
+function selClass(tipo,val){if(tipo==="c")return val?"sel sel-c":"sel";return val?"sel sel-m":"sel";}
+function cSel(el,tipo){if(el.value){el.className=tipo==="c"?"sel sel-c":"sel sel-m";}else{el.className="sel";}}
 function addMovil(){
   var pat=document.getElementById("mv-pat").value.trim();
   var desc=document.getElementById("mv-desc").value.trim();
-  if(!pat) return T("Ingresa la patente");
-  db.ref("moviles").push({pat:pat,desc:desc}).then(function(){ T("Vehiculo agregado"); });
-  document.getElementById("mv-pat").value=""; document.getElementById("mv-desc").value="";
+  if(!pat)return T("Ingresa la patente");
+  db.ref("moviles").push({pat:pat,desc:desc}).then(function(){T("Vehiculo agregado");});
+  document.getElementById("mv-pat").value="";document.getElementById("mv-desc").value="";
 }
-function delMovil(key){ db.ref("moviles/"+key).remove(); }
+function delMovil(key){db.ref("moviles/"+key).remove();}
 function renderMoviles(){
   var el=document.getElementById("lista-moviles");
-  if(!moviles.length){ el.innerHTML="<span style=\"font-size:11px;color:#aaa\">Sin vehiculos</span>"; return; }
+  if(!moviles.length){el.innerHTML="<span style=\"font-size:11px;color:#aaa\">Sin vehiculos</span>";return;}
   el.innerHTML=moviles.map(function(m){
     return "<span class=\"badge badge-green\" style=\"font-size:11px;padding:3px 9px\">"+m.pat+(m.desc?" - "+m.desc:"")+" <span onclick=\"delMovil('"+m._key+"')\" style=\"margin-left:4px;cursor:pointer;opacity:.6\">x</span></span>";
   }).join("");
 }
-
 function addChofer(){
   var n=document.getElementById("ch-n").value.trim();
   var t=document.getElementById("ch-t").value.trim();
   var m=document.getElementById("ch-m").value.trim();
-  if(!n||!t) return T("Nombre y telefono requeridos");
-  db.ref("choferes").push({nombre:n,tel:t,movil:m}).then(function(){ T("Chofer agregado"); }).catch(function(e){ T("Error: "+e.message); });
-  document.getElementById("ch-n").value=""; document.getElementById("ch-t").value=""; document.getElementById("ch-m").value="";
+  if(!n||!t)return T("Nombre y telefono requeridos");
+  db.ref("choferes").push({nombre:n,tel:t,movil:m}).then(function(){T("Chofer agregado");}).catch(function(e){T("Error: "+e.message);});
+  document.getElementById("ch-n").value="";document.getElementById("ch-t").value="";document.getElementById("ch-m").value="";
 }
-function delChofer(key){ db.ref("choferes/"+key).remove(); }
+function delChofer(key){db.ref("choferes/"+key).remove();}
 function renderChoferes(){
   var nf=document.getElementById("nf-chofer");
   if(nf){
@@ -516,51 +397,41 @@ function renderChoferes(){
     nf.innerHTML="<option value=\"\">Asignar</option>"+choferes.map(function(c){
       return "<option value=\""+c.nombre+"\"" +(c.nombre===curNf?" selected":"")+">"+c.nombre+"</option>";
     }).join("");
-    if(curNf) nf.value=curNf;
+    if(curNf)nf.value=curNf;
   }
   var tb=document.getElementById("tbody-choferes");
-  if(!choferes.length){ tb.innerHTML="<tr><td colspan=\"5\" class=\"empty-td\">Sin choferes cargados</td></tr>"; return; }
+  if(!choferes.length){tb.innerHTML="<tr><td colspan=\"5\" class=\"empty-td\">Sin choferes cargados</td></tr>";return;}
   tb.innerHTML=choferes.map(function(c){
     return "<tr><td><div class=\"avatar\">"+ini(c.nombre)+"</div></td><td style=\"font-weight:600\">"+c.nombre+"</td><td style=\"color:#666\">"+c.tel+"</td><td><span class=\"badge badge-green\">"+(c.movil||"-")+"</span></td><td><button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delChofer('"+c._key+"')\" >Eliminar</button></td></tr>";
   }).join("");
 }
-
-function cOpts(s){
-  return "<option value=\"\">Asignar</option>"+choferes.map(function(c){
-    return "<option value=\""+c.nombre+"\"" +(c.nombre===s?" selected":"")+">"+c.nombre+"</option>";
-  }).join("");
-}
-function mOpts(s){
-  return "<option value=\"\">Asignar</option>"+moviles.map(function(m){
-    return "<option value=\""+m.pat+"\"" +(m.pat===s?" selected":"")+">"+m.pat+(m.desc?" ("+m.desc+")":"")+"</option>";
-  }).join("");
-}
-
+function cOpts(s){return "<option value=\"\">Asignar</option>"+choferes.map(function(c){return "<option value=\""+c.nombre+"\"" +(c.nombre===s?" selected":"")+">"+c.nombre+"</option>";}).join("");}
+function mOpts(s){return "<option value=\"\">Asignar</option>"+moviles.map(function(m){return "<option value=\""+m.pat+"\"" +(m.pat===s?" selected":"")+">"+m.pat+(m.desc?" ("+m.desc+")":"")+"</option>";}).join("");}
 function agregarRecorrido(){
   var hora=document.getElementById("nr-hora").value.trim();
   var rec=document.getElementById("nr-rec").value.trim();
   var chofer=document.getElementById("nr-chofer").value;
   var movil=document.getElementById("nr-movil").value;
   var nota=document.getElementById("nr-nota").value.trim();
-  if(!hora||!rec) return T("Hora y recorrido requeridos");
+  if(!hora||!rec)return T("Hora y recorrido requeridos");
   db.ref("planillas/"+getFecha()+"/recorridos").push({hora:hora,recorrido:rec,chofer:chofer,movil:movil,nota:nota});
-  ["nr-hora","nr-rec","nr-nota"].forEach(function(id){ document.getElementById(id).value=""; });
-  document.getElementById("nr-chofer").value=""; document.getElementById("nr-movil").value="";
-  document.getElementById("form-rec").style.display="none"; T("Recorrido agregado");
+  ["nr-hora","nr-rec","nr-nota"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("nr-chofer").value="";document.getElementById("nr-movil").value="";
+  document.getElementById("form-rec").style.display="none";T("Recorrido agregado");
 }
 function updRec(key,campo,val){
-  var upd={}; upd[campo]=val;
-  if(campo==="chofer"&&val){ var ch=choferes.find(function(c){return c.nombre===val;}); var r=diaData.recorridos.find(function(x){return x._key===key;}); if(ch&&ch.movil&&(!r||!r.movil)) upd.movil=ch.movil; }
+  var upd={};upd[campo]=val;
+  if(campo==="chofer"&&val){var ch=choferes.find(function(c){return c.nombre===val;});var r=diaData.recorridos.find(function(x){return x._key===key;});if(ch&&ch.movil&&(!r||!r.movil))upd.movil=ch.movil;}
   db.ref("planillas/"+getFecha()+"/recorridos/"+key).update(upd);
 }
-function delRec(key){ db.ref("planillas/"+getFecha()+"/recorridos/"+key).remove(); }
+function delRec(key){db.ref("planillas/"+getFecha()+"/recorridos/"+key).remove();}
 function renderRecorridos(){
   var filas=diaData.recorridos.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
   var tb=document.getElementById("tbody-rec");
   document.getElementById("cnt-rec").textContent=filas.length+" registros";
-  if(!filas.length){ tb.innerHTML="<tr><td colspan=\"5\" class=\"empty-td\">Sin recorridos</td></tr>"; return; }
+  if(!filas.length){tb.innerHTML="<tr><td colspan=\"5\" class=\"empty-td\">Sin recorridos</td></tr>";return;}
   tb.innerHTML=filas.map(function(r){
-    var clsC=selClass("c",r.chofer); var clsM=selClass("m",r.movil);
+    var clsC=selClass("c",r.chofer);var clsM=selClass("m",r.movil);
     return "<tr>"+
       "<td class=\"hora-bold\">"+r.hora+"</td>"+
       "<td style=\"font-weight:500\">"+r.recorrido+"</td>"+
@@ -570,7 +441,6 @@ function renderRecorridos(){
     "</tr>";
   }).join("");
 }
-
 function agregarContratado(){
   var hora=document.getElementById("nc-hora").value.trim();
   var regreso=document.getElementById("nc-regreso").value.trim();
@@ -578,25 +448,25 @@ function agregarContratado(){
   var chofer=document.getElementById("nc-chofer").value;
   var movil=document.getElementById("nc-movil").value;
   var cont=document.getElementById("nc-cont").value.trim();
-  if(!hora||!rec) return T("Hora y recorrido requeridos");
+  if(!hora||!rec)return T("Hora y recorrido requeridos");
   db.ref("planillas/"+getFecha()+"/contratados").push({hora:hora,regreso:regreso,recorrido:rec,chofer:chofer,movil:movil,contratante:cont});
-  ["nc-hora","nc-regreso","nc-rec","nc-cont"].forEach(function(id){ document.getElementById(id).value=""; });
-  document.getElementById("nc-chofer").value=""; document.getElementById("nc-movil").value="";
-  document.getElementById("form-con").style.display="none"; T("Viaje contratado agregado");
+  ["nc-hora","nc-regreso","nc-rec","nc-cont"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("nc-chofer").value="";document.getElementById("nc-movil").value="";
+  document.getElementById("form-con").style.display="none";T("Viaje contratado agregado");
 }
 function updCon(key,campo,val){
-  var upd={}; upd[campo]=val;
-  if(campo==="chofer"&&val){ var ch=choferes.find(function(c){return c.nombre===val;}); var r=diaData.contratados.find(function(x){return x._key===key;}); if(ch&&ch.movil&&(!r||!r.movil)) upd.movil=ch.movil; }
+  var upd={};upd[campo]=val;
+  if(campo==="chofer"&&val){var ch=choferes.find(function(c){return c.nombre===val;});var r=diaData.contratados.find(function(x){return x._key===key;});if(ch&&ch.movil&&(!r||!r.movil))upd.movil=ch.movil;}
   db.ref("planillas/"+getFecha()+"/contratados/"+key).update(upd);
 }
-function delCon(key){ db.ref("planillas/"+getFecha()+"/contratados/"+key).remove(); }
+function delCon(key){db.ref("planillas/"+getFecha()+"/contratados/"+key).remove();}
 function renderContratados(){
   var filas=diaData.contratados.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
   var tb=document.getElementById("tbody-con");
   document.getElementById("cnt-con").textContent=filas.length+" registros";
-  if(!filas.length){ tb.innerHTML="<tr><td colspan=\"7\" class=\"empty-td\">Sin viajes contratados</td></tr>"; return; }
+  if(!filas.length){tb.innerHTML="<tr><td colspan=\"7\" class=\"empty-td\">Sin viajes contratados</td></tr>";return;}
   tb.innerHTML=filas.map(function(r){
-    var clsC=selClass("c",r.chofer); var clsM=selClass("m",r.movil);
+    var clsC=selClass("c",r.chofer);var clsM=selClass("m",r.movil);
     return "<tr>"+
       "<td class=\"hora-bold\" style=\"color:#854F0B\">"+r.hora+"</td>"+
       "<td style=\"font-weight:500\">"+r.recorrido+"</td>"+
@@ -608,56 +478,85 @@ function renderContratados(){
     "</tr>";
   }).join("");
 }
-
 function agregarFranco(){
   var chofer=document.getElementById("nf-chofer").value;
   var motivo=document.getElementById("nf-motivo").value;
   var detalle=document.getElementById("nf-detalle").value.trim();
-  if(!chofer) return T("Selecciona un chofer");
+  if(!chofer)return T("Selecciona un chofer");
   db.ref("planillas/"+getFecha()+"/francos").push({chofer:chofer,motivo:motivo,detalle:detalle});
-  document.getElementById("nf-chofer").value=""; document.getElementById("nf-detalle").value="";
-  document.getElementById("form-fra").style.display="none"; T("Franco agregado");
+  document.getElementById("nf-chofer").value="";document.getElementById("nf-detalle").value="";
+  document.getElementById("form-fra").style.display="none";T("Franco agregado");
 }
-function delFra(key){ db.ref("planillas/"+getFecha()+"/francos/"+key).remove(); }
+function delFra(key){db.ref("planillas/"+getFecha()+"/francos/"+key).remove();}
 function renderFrancos(){
   var filas=diaData.francos.slice().sort(function(a,b){return a.chofer.localeCompare(b.chofer);});
   var tb=document.getElementById("tbody-fra");
   document.getElementById("cnt-fra").textContent=filas.length+" registros";
-  if(!filas.length){ tb.innerHTML="<tr><td colspan=\"4\" class=\"empty-td\">Sin francos</td></tr>"; return; }
+  if(!filas.length){tb.innerHTML="<tr><td colspan=\"4\" class=\"empty-td\">Sin francos</td></tr>";return;}
   var col={Franco:"badge-purple",Vacaciones:"badge-amber",Enfermedad:"badge-red",Licencia:"badge-green",Otro:"badge-green"};
   tb.innerHTML=filas.map(function(r){
     return "<tr><td style=\"font-weight:600\">"+r.chofer+"</td><td><span class=\"badge "+(col[r.motivo]||"badge-purple")+"\">"+r.motivo+"</span></td><td style=\"color:#666;font-size:10px\">"+(r.detalle||"-")+"</td><td class=\"no-print\"><button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delFra('"+r._key+"')\" >x</button></td></tr>";
   }).join("");
 }
-
-function renderAll(){ renderRecorridos(); renderContratados(); renderFrancos(); }
-
+function renderAll(){renderRecorridos();renderContratados();renderFrancos();}
+function copiarDiaAnterior(){
+  var fecha=getFecha();
+  var d=new Date(fecha+"T12:00:00");
+  d.setDate(d.getDate()-1);
+  var ayer=d.toISOString().split("T")[0];
+  var tieneData=(diaData.recorridos&&diaData.recorridos.some(function(r){return r.chofer;}))||(diaData.contratados&&diaData.contratados.length>0);
+  if(tieneData){
+    if(!confirm("El dia "+fmtF(fecha)+" ya tiene datos. Reemplazar con los del "+fmtF(ayer)+"?"))return;
+  }
+  T("Copiando datos del "+fmtF(ayer)+"...");
+  db.ref("planillas/"+ayer).once("value",function(snap){
+    var val=snap.val();
+    if(!val||!val.recorridos){T("No hay datos del "+fmtF(ayer));return;}
+    var upd={};
+    upd["planillas/"+fecha]=null;
+    if(val.recorridos){
+      Object.keys(val.recorridos).forEach(function(k){
+        var r=val.recorridos[k];
+        var nk=db.ref().push().key;
+        upd["planillas/"+fecha+"/recorridos/"+nk]={hora:r.hora,recorrido:r.recorrido,chofer:r.chofer||"",movil:r.movil||"",nota:""};
+      });
+    }
+    if(val.contratados){
+      Object.keys(val.contratados).forEach(function(k){
+        var c=val.contratados[k];
+        var nk=db.ref().push().key;
+        upd["planillas/"+fecha+"/contratados/"+nk]={hora:c.hora||"",regreso:c.regreso||"",recorrido:c.recorrido||"",chofer:c.chofer||"",movil:c.movil||"",contratante:c.contratante||""};
+      });
+    }
+    db.ref().update(upd,function(err){
+      if(err){T("Error: "+err.message);}
+      else{T("Copiado correctamente de "+fmtF(ayer)+"!");}
+    });
+  });
+}
 function imprimirPDF(){
   document.getElementById("print-fecha-txt").innerHTML="Fecha: <strong>"+fmtF(getFecha())+"</strong><br>Rec: "+diaData.recorridos.length+" | Cont: "+diaData.contratados.length+" | Francos: "+diaData.francos.length;
-  ["planilla","choferes","mensajes"].forEach(function(n,i){ document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla"); document.getElementById("tab-"+n).classList.toggle("active",n==="planilla"); });
-  setTimeout(function(){ window.print(); },150);
+  ["planilla","choferes","mensajes"].forEach(function(n,i){document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla");document.getElementById("tab-"+n).classList.toggle("active",n==="planilla");});
+  setTimeout(function(){window.print();},150);
 }
-
 function exportarJPG(){
-  // ir a tab planilla
-  ["planilla","choferes","mensajes"].forEach(function(n,i){ document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla"); document.getElementById("tab-"+n).classList.toggle("active",n==="planilla"); });
+  ["planilla","choferes","mensajes"].forEach(function(n,i){document.querySelectorAll(".tab")[i].classList.toggle("active",n==="planilla");document.getElementById("tab-"+n).classList.toggle("active",n==="planilla");});
   document.getElementById("print-fecha-txt").innerHTML="Fecha: <strong>"+fmtF(getFecha())+"</strong> | Rec: "+diaData.recorridos.length+" | Cont: "+diaData.contratados.length+" | Francos: "+diaData.francos.length;
   var hdr=document.getElementById("print-hdr");
   var topbar=document.querySelector(".topbar");
   var forms=document.querySelectorAll(".fgrid-wrap");
   hdr.style.display="flex";
   topbar.style.display="none";
-  forms.forEach(function(f){ f.style.display="none"; });
-  // convertir selects a spans de texto con color
+  forms.forEach(function(f){f.style.display="none";});
   var sels=document.querySelectorAll("select.sel,select.sel-c,select.sel-m");
   var originals=[];
   sels.forEach(function(sel){
     var val=sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].text:"-";
-    if(!val||val==="Asignar") val="-";
+    if(!val||val==="Asignar")val="-";
     var cls=sel.className;
-    var color="#1a1a1a"; var bg="transparent"; var fw="500";
-    if(cls.indexOf("sel-c")>-1){ color="#0F6E56"; fw="700"; }
-    else if(cls.indexOf("sel-m")>-1){ color="#0C447C"; fw="700"; }
+    var color="#1a1a1a";var fw="500";
+    if(cls.indexOf("sel-c")>-1){color="#0F6E56";fw="700";}
+    else if(cls.indexOf("sel-m")>-1){color="#0C447C";fw="700";}
     var span=document.createElement("span");
     span.textContent=val;
     span.style.cssText="color:"+color+";font-weight:"+fw+";font-size:10px;display:inline-block;padding:2px 4px;";
@@ -665,33 +564,27 @@ function exportarJPG(){
     sel.style.display="none";
     originals.push({sel:sel,span:span});
   });
-  // ocultar botones x de las filas
   var btns=document.querySelectorAll(".no-print");
-  btns.forEach(function(b){ b.style.display="none"; });
+  btns.forEach(function(b){b.style.display="none";});
   T("Generando imagen...");
   setTimeout(function(){
-    html2canvas(document.getElementById("tab-planilla"),{ scale:2, useCORS:true, backgroundColor:"#f5f5f2", logging:false })
+    html2canvas(document.getElementById("tab-planilla"),{scale:2,useCORS:true,backgroundColor:"#f5f5f2",logging:false})
     .then(function(canvas){
-      // restaurar todo
-      originals.forEach(function(o){ o.sel.style.display=""; o.span.remove(); });
-      btns.forEach(function(b){ b.style.display=""; });
-      hdr.style.display="none";
-      topbar.style.display="flex";
+      originals.forEach(function(o){o.sel.style.display="";o.span.remove();});
+      btns.forEach(function(b){b.style.display="";});
+      hdr.style.display="none";topbar.style.display="flex";
       var link=document.createElement("a");
       link.download="planilla-"+getFecha()+".jpg";
       link.href=canvas.toDataURL("image/jpeg",0.95);
-      link.click();
-      T("JPG descargado!");
+      link.click();T("JPG descargado!");
     }).catch(function(){
-      originals.forEach(function(o){ o.sel.style.display=""; o.span.remove(); });
-      btns.forEach(function(b){ b.style.display=""; });
-      hdr.style.display="none";
-      topbar.style.display="flex";
+      originals.forEach(function(o){o.sel.style.display="";o.span.remove();});
+      btns.forEach(function(b){b.style.display="";});
+      hdr.style.display="none";topbar.style.display="flex";
       T("Error al generar JPG");
     });
   },400);
 }
-
 function buildResumen(){
   var f=getFecha();
   var rec=diaData.recorridos.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
@@ -699,32 +592,25 @@ function buildResumen(){
   var fra=diaData.francos.slice().sort(function(a,b){return a.chofer.localeCompare(b.chofer);});
   var sep="------------------------------------------";
   var txt="PLANILLA DE RECORRIDOS - "+fmtF(f)+"\n"+sep+"\n\nRECORRIDOS DEL DIA\n";
-  rec.forEach(function(r){ txt+="  "+(r.hora||"").padEnd(6)+" "+(r.recorrido||"").padEnd(16)+" "+(r.chofer||"Sin asignar").padEnd(12)+" "+(r.movil||"-")+(r.nota?" ("+r.nota+")":"")+"\n"; });
+  rec.forEach(function(r){txt+="  "+(r.hora||"").padEnd(6)+" "+(r.recorrido||"").padEnd(16)+" "+(r.chofer||"Sin asignar").padEnd(12)+" "+(r.movil||"-")+(r.nota?" ("+r.nota+")":"")+"\n";});
   txt+="\n"+sep+"\nVIAJES CONTRATADOS\n";
-  if(con.length) con.forEach(function(r){ txt+="  "+(r.hora||"").padEnd(6)+" "+(r.recorrido||"").padEnd(16)+" "+(r.chofer||"Sin asignar").padEnd(12)+" "+(r.movil||"-")+(r.contratante?" | "+r.contratante:"")+(r.regreso?" | Reg: "+r.regreso:"")+"\n"; });
+  if(con.length)con.forEach(function(r){txt+="  "+(r.hora||"").padEnd(6)+" "+(r.recorrido||"").padEnd(16)+" "+(r.chofer||"Sin asignar").padEnd(12)+" "+(r.movil||"-")+(r.contratante?" | "+r.contratante:"")+(r.regreso?" | Reg: "+r.regreso:"")+"\n";});
   else txt+="  Sin viajes contratados\n";
   txt+="\n"+sep+"\nPERSONAL DE FRANCO\n";
-  if(fra.length) fra.forEach(function(r){ txt+="  "+(r.chofer||"").padEnd(14)+" "+(r.motivo||"").padEnd(12)+" "+(r.detalle||"")+"\n"; });
+  if(fra.length)fra.forEach(function(r){txt+="  "+(r.chofer||"").padEnd(14)+" "+(r.motivo||"").padEnd(12)+" "+(r.detalle||"")+"\n";});
   else txt+="  Sin francos\n";
   txt+="\n"+sep+"\nTotal: "+rec.length+" recorridos | "+con.length+" contratados | "+fra.length+" francos\n";
   return txt;
 }
-function abrirExportar(){
-  var txt=buildResumen();
-  document.getElementById("modal-titulo").textContent="Resumen del "+fmtF(getFecha());
-  document.getElementById("export-prev").textContent=txt;
-  document.getElementById("wa-resumen").href="https://wa.me/?text="+encodeURIComponent(txt);
-  document.getElementById("modal-exportar").classList.add("open");
-}
-function cerrarModal(){ document.getElementById("modal-exportar").classList.remove("open"); }
-document.getElementById("modal-exportar").addEventListener("click",function(e){ if(e.target===this) cerrarModal(); });
-function copiarResumen(){ navigator.clipboard.writeText(document.getElementById("export-prev").textContent).then(function(){ T("Copiado"); }); }
-
+function abrirExportar(){var txt=buildResumen();document.getElementById("modal-titulo").textContent="Resumen del "+fmtF(getFecha());document.getElementById("export-prev").textContent=txt;document.getElementById("wa-resumen").href="https://wa.me/?text="+encodeURIComponent(txt);document.getElementById("modal-exportar").classList.add("open");}
+function cerrarModal(){document.getElementById("modal-exportar").classList.remove("open");}
+document.getElementById("modal-exportar").addEventListener("click",function(e){if(e.target===this)cerrarModal();});
+function copiarResumen(){navigator.clipboard.writeText(document.getElementById("export-prev").textContent).then(function(){T("Copiado");});}
 function buildMsg(nombre,rec,con,fra,fecha){
   var msg="Hola "+nombre+"! Tus tareas del "+fmtF(fecha)+":\n";
-  if(fra.length){ msg+="\nFRANCO:\n"; fra.forEach(function(r){ msg+="  - "+r.motivo+(r.detalle?" - "+r.detalle:"")+"\n"; }); }
-  if(rec.length){ msg+="\nRECORRIDOS:\n"; rec.forEach(function(r){ msg+="  - "+r.hora+" hs - "+r.recorrido+(r.movil?" | Movil: "+r.movil:"")+(r.nota?" ("+r.nota+")":"")+"\n"; }); }
-  if(con.length){ msg+="\nVIAJES CONTRATADOS:\n"; con.forEach(function(r){ msg+="  - "+r.hora+" hs - "+r.recorrido+(r.movil?" | Movil: "+r.movil:"")+(r.contratante?" | Para: "+r.contratante:"")+(r.regreso?" | Reg: "+r.regreso:"")+"\n"; }); }
+  if(fra.length){msg+="\nFRANCO:\n";fra.forEach(function(r){msg+="  - "+r.motivo+(r.detalle?" - "+r.detalle:"")+"\n";});}
+  if(rec.length){msg+="\nRECORRIDOS:\n";rec.forEach(function(r){msg+="  - "+r.hora+" hs - "+r.recorrido+(r.movil?" | Movil: "+r.movil:"")+(r.nota?" ("+r.nota+")":"")+"\n";});}
+  if(con.length){msg+="\nVIAJES CONTRATADOS:\n";con.forEach(function(r){msg+="  - "+r.hora+" hs - "+r.recorrido+(r.movil?" | Movil: "+r.movil:"")+(r.contratante?" | Para: "+r.contratante:"")+(r.regreso?" | Reg: "+r.regreso:"")+"\n";});}
   msg+="\nCualquier consulta avisa. Gracias!";
   return msg;
 }
@@ -733,13 +619,13 @@ function renderMensajes(){
   document.getElementById("msg-titulo").textContent="Mensajes del "+fmtF(fecha);
   var cont=document.getElementById("contenedor-mensajes");
   var por={};
-  diaData.recorridos.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].rec.push(r); });
-  diaData.contratados.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].con.push(r); });
-  diaData.francos.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].fra.push(r); });
+  diaData.recorridos.filter(function(r){return r.chofer;}).forEach(function(r){if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]};por[r.chofer].rec.push(r);});
+  diaData.contratados.filter(function(r){return r.chofer;}).forEach(function(r){if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]};por[r.chofer].con.push(r);});
+  diaData.francos.filter(function(r){return r.chofer;}).forEach(function(r){if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]};por[r.chofer].fra.push(r);});
   var nombres=Object.keys(por);
-  if(!nombres.length){ cont.innerHTML="<div style=\"text-align:center;padding:2rem;color:#aaa\">No hay choferes asignados aun</div>"; return; }
+  if(!nombres.length){cont.innerHTML="<div style=\"text-align:center;padding:2rem;color:#aaa\">No hay choferes asignados aun</div>";return;}
   cont.innerHTML=nombres.map(function(nombre){
-    var ch=choferes.find(function(c){return c.nombre===nombre;}); var tel=ch?ch.tel:"";
+    var ch=choferes.find(function(c){return c.nombre===nombre;});var tel=ch?ch.tel:"";
     var l=por[nombre];
     var rS=l.rec.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
     var cS=l.con.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
@@ -765,128 +651,21 @@ function renderMensajes(){
     "</div>";
   }).join("");
 }
-function copiarMsg(key){ var el=document.getElementById("msg-"+key); if(el) navigator.clipboard.writeText(el.textContent).then(function(){ T("Copiado"); }); }
+function copiarMsg(key){var el=document.getElementById("msg-"+key);if(el)navigator.clipboard.writeText(el.textContent).then(function(){T("Copiado");});}
 function enviarTodos(){
-  var fecha=getFecha(); var por={};
-  diaData.recorridos.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].rec.push(r); });
-  diaData.contratados.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].con.push(r); });
-  diaData.francos.filter(function(r){return r.chofer;}).forEach(function(r){ if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]}; por[r.chofer].fra.push(r); });
+  var fecha=getFecha();var por={};
+  diaData.recorridos.filter(function(r){return r.chofer;}).forEach(function(r){if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]};por[r.chofer].rec.push(r);});
+  diaData.contratados.filter(function(r){return r.chofer;}).forEach(function(r){if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]};por[r.chofer].con.push(r);});
+  diaData.francos.filter(function(r){return r.chofer;}).forEach(function(r){if(!por[r.chofer])por[r.chofer]={rec:[],con:[],fra:[]};por[r.chofer].fra.push(r);});
   Object.keys(por).forEach(function(nombre,idx){
-    var ch=choferes.find(function(c){return c.nombre===nombre;}); if(!ch||!ch.tel) return;
+    var ch=choferes.find(function(c){return c.nombre===nombre;});if(!ch||!ch.tel)return;
     var l=por[nombre];
     var msg=buildMsg(nombre,l.rec.sort(function(a,b){return toMin(a.hora)-toMin(b.hora);}),l.con.sort(function(a,b){return toMin(a.hora)-toMin(b.hora);}),l.fra,fecha);
-    setTimeout(function(){ window.open("https://wa.me/"+ch.tel+"?text="+encodeURIComponent(msg),"_blank"); },idx*700);
+    setTimeout(function(){window.open("https://wa.me/"+ch.tel+"?text="+encodeURIComponent(msg),"_blank");},idx*700);
   });
   T("Abriendo WhatsApp...");
 }
-
-function copiarDiaAnterior(){
-  var hoy=getFecha();
-  // calcular fecha anterior
-  var d=new Date(hoy+"T00:00:00");
-  d.setDate(d.getDate()-1);
-  var ayer=d.toISOString().split("T")[0];
-  // verificar que el dia actual no tenga datos ya
-  db.ref("planillas/"+hoy).once("value").then(function(snapHoy){
-    var yaHayDatos=snapHoy.exists() && snapHoy.val() && snapHoy.val().recorridos && Object.keys(snapHoy.val().recorridos).length > 0;
-    // contar si tiene choferes asignados
-    var tieneAsignados=false;
-    if(yaHayDatos){
-      var recs=snapHoy.val().recorridos;
-      Object.keys(recs).forEach(function(k){ if(recs[k].chofer) tieneAsignados=true; });
-    }
-    if(tieneAsignados){
-      if(!confirm("El dia ya tiene choferes asignados. Confirmas que queres sobrescribir con el dia anterior?")) return;
-    }
-    // leer dia anterior
-    db.ref("planillas/"+ayer).once("value").then(function(snapAyer){
-      var val=snapAyer.val();
-      if(!val || !val.recorridos){
-        T("No hay datos del dia anterior ("+fmtF(ayer)+")");
-        return;
-      }
-      // copiar recorridos, contratados y francos del dia anterior
-      var upd={};
-      // recorridos: copiar con los mismos choferes y moviles
-      Object.keys(val.recorridos).forEach(function(k){
-        var r=val.recorridos[k];
-        var nuevoKey=db.ref().push().key;
-        upd["planillas/"+hoy+"/recorridos/"+nuevoKey]={
-          hora:r.hora||"",
-          recorrido:r.recorrido||"",
-          chofer:r.chofer||"",
-          movil:r.movil||"",
-          nota:r.nota||""
-        };
-      });
-      // contratados: NO copiar (son viajes especiales de ese dia)
-      // francos: NO copiar (cambian cada dia)
-      // borrar datos actuales del dia y escribir los nuevos
-      db.ref("planillas/"+hoy).remove().then(function(){
-        db.ref().update(upd).then(function(){
-          T("Recorridos copiados del "+fmtF(ayer)+" - Modifica lo que necesites!");
-        });
-      });
-    }).catch(function(){ T("Error al leer el dia anterior"); });
-  });
-}
-
-function copiarDiaAnterior(){
-  var fecha=getFecha();
-  var d=new Date(fecha+"T12:00:00");
-  d.setDate(d.getDate()-1);
-  var ayer=d.toISOString().split("T")[0];
-  // verificar si el dia actual ya tiene datos
-  var diaActual=planillas[fecha]||diaData;
-  var tieneData=(diaData.recorridos&&diaData.recorridos.length>0&&diaData.recorridos.some(function(r){return r.chofer;})) ||
-               (diaData.contratados&&diaData.contratados.length>0) ||
-               (diaData.francos&&diaData.francos.length>0);
-  if(tieneData){
-    if(!confirm("El dia "+fmtF(fecha)+" ya tiene datos cargados. Queres reemplazarlos con los del dia anterior ("+fmtF(ayer)+")?")) return;
-  }
-  T("Copiando datos del "+fmtF(ayer)+"...");
-  db.ref("planillas/"+ayer).once("value", function(snap){
-    var val=snap.val();
-    if(!val||!val.recorridos){
-      T("No hay datos del "+fmtF(ayer));
-      return;
-    }
-    var upd={};
-    // limpiar dia actual primero
-    upd["planillas/"+fecha]=null;
-    // copiar recorridos (con chofer y movil pero sin nota)
-    if(val.recorridos){
-      Object.keys(val.recorridos).forEach(function(k){
-        var r=val.recorridos[k];
-        var newKey=db.ref().push().key;
-        upd["planillas/"+fecha+"/recorridos/"+newKey]={
-          hora:r.hora, recorrido:r.recorrido,
-          chofer:r.chofer||"", movil:r.movil||"", nota:""
-        };
-      });
-    }
-    // copiar contratados
-    if(val.contratados){
-      Object.keys(val.contratados).forEach(function(k){
-        var c=val.contratados[k];
-        var newKey=db.ref().push().key;
-        upd["planillas/"+fecha+"/contratados/"+newKey]={
-          hora:c.hora||"", regreso:c.regreso||"",
-          recorrido:c.recorrido||"", chofer:c.chofer||"",
-          movil:c.movil||"", contratante:c.contratante||""
-        };
-      });
-    }
-    // NO copiar francos (son especificos de cada dia)
-    db.ref().update(upd, function(err){
-      if(err){ T("Error al copiar: "+err.message); }
-      else { T("Dia "+fmtF(ayer)+" copiado correctamente!"); }
-    });
-  });
-}
-
 subAll();
-
 </script>
 </body>
 </html>
