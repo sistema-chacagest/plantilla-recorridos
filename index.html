@@ -122,6 +122,8 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
     <input type="date" id="fecha"/>
     <div class="sync-bar"><span class="sync-dot" id="sync-dot"></span><span id="sync-txt">conectando...</span></div>
     <button class="btn btn-teal btn-sm" onclick="copiarDiaAnterior()">Copiar dia anterior</button>
+    <button class="btn btn-sm" style="background:#7d6608;color:white;border-color:transparent" onclick="abrirCopiarDia()">Copiar otro dia</button>
+    <button class="btn btn-sm" style="background:#922b21;color:white;border-color:transparent" onclick="limpiarDia()">Limpiar dia</button>
     <button class="btn btn-blue btn-sm" onclick="toggleForm('form-rec')">+ Recorrido</button>
     <button class="btn btn-amber btn-sm" onclick="toggleForm('form-con')">+ Contratado</button>
     <button class="btn btn-purple btn-sm" onclick="toggleForm('form-fra')">+ Franco</button>
@@ -232,6 +234,20 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
     </div>
   </div>
   <div id="contenedor-mensajes"></div>
+</div>
+<div class="modal-bg" id="modal-copiar">
+  <div class="modal" style="max-width:360px">
+    <h3>Copiar datos de otro dia</h3>
+    <p style="font-size:12px;color:#666;margin-bottom:1rem">Selecciona el dia que queres copiar al dia actual (<span id="mc-destino"></span>):</p>
+    <div style="margin-bottom:1rem">
+      <label style="font-size:11px;color:#666;display:block;margin-bottom:4px">Dia a copiar</label>
+      <input type="date" id="mc-fecha" style="width:100%;font-size:13px;padding:7px 10px;border:1px solid #ccc;border-radius:7px"/>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-blue" onclick="ejecutarCopiarDia()" style="flex:1">Copiar</button>
+      <button class="btn" onclick="cerrarModalCopiar()">Cancelar</button>
+    </div>
+  </div>
 </div>
 <div class="modal-bg" id="modal-exportar">
   <div class="modal">
@@ -501,6 +517,76 @@ function renderFrancos(){
 }
 function renderAll(){renderRecorridos();renderContratados();renderFrancos();}
 var copiando=false;
+function limpiarDia(){
+  var fecha=getFecha();
+  if(!confirm("Limpiar el dia "+fmtF(fecha)+"?\nSe borraran choferes, moviles, contratados y francos.\nSolo quedan los recorridos vacios."))return;
+  copiando=true;
+  var upd={};
+  BASE_REC.forEach(function(r){
+    var k=db.ref().push().key;
+    upd["recorridos/"+k]={hora:r.hora,recorrido:r.recorrido,chofer:"",movil:"",nota:""};
+  });
+  db.ref("planillas/"+fecha).remove(function(){
+    db.ref("planillas/"+fecha).update(upd,function(err){
+      copiando=false;
+      if(err){T("Error: "+err.message);}
+      else{T("Dia limpiado correctamente!");}
+    });
+  });
+}
+
+function abrirCopiarDia(){
+  document.getElementById("mc-destino").textContent=fmtF(getFecha());
+  var ayer=new Date(getFecha()+"T12:00:00");
+  ayer.setDate(ayer.getDate()-1);
+  document.getElementById("mc-fecha").value=ayer.toISOString().split("T")[0];
+  document.getElementById("modal-copiar").classList.add("open");
+}
+
+function cerrarModalCopiar(){
+  document.getElementById("modal-copiar").classList.remove("open");
+}
+
+function ejecutarCopiarDia(){
+  var fecha=getFecha();
+  var origen=document.getElementById("mc-fecha").value;
+  if(!origen){T("Selecciona un dia");return;}
+  if(origen===fecha){T("El dia origen y destino son iguales");return;}
+  cerrarModalCopiar();
+  var tieneData=(diaData.recorridos&&diaData.recorridos.some(function(r){return r.chofer;}))||(diaData.contratados&&diaData.contratados.length>0);
+  if(tieneData){
+    if(!confirm("El dia "+fmtF(fecha)+" ya tiene datos. Reemplazar con los del "+fmtF(origen)+"?"))return;
+  }
+  T("Copiando datos del "+fmtF(origen)+"...");
+  db.ref("planillas/"+origen).once("value",function(snap){
+    var val=snap.val();
+    if(!val||!val.recorridos){T("No hay datos del "+fmtF(origen));return;}
+    copiando=true;
+    var upd={};
+    if(val.recorridos){
+      Object.keys(val.recorridos).forEach(function(k){
+        var r=val.recorridos[k];
+        var nk=db.ref().push().key;
+        upd["planillas/"+fecha+"/recorridos/"+nk]={hora:r.hora,recorrido:r.recorrido,chofer:r.chofer||"",movil:r.movil||"",nota:""};
+      });
+    }
+    if(val.contratados){
+      Object.keys(val.contratados).forEach(function(k){
+        var c=val.contratados[k];
+        var nk=db.ref().push().key;
+        upd["planillas/"+fecha+"/contratados/"+nk]={hora:c.hora||"",regreso:c.regreso||"",recorrido:c.recorrido||"",chofer:c.chofer||"",movil:c.movil||"",contratante:c.contratante||""};
+      });
+    }
+    db.ref("planillas/"+fecha).remove(function(){
+      db.ref().update(upd,function(err){
+        copiando=false;
+        if(err){T("Error: "+err.message);}
+        else{T("Copiado correctamente de "+fmtF(origen)+"!");}
+      });
+    });
+  });
+}
+
 function copiarDiaAnterior(){
   var fecha=getFecha();
   var d=new Date(fecha+"T12:00:00");
@@ -611,6 +697,7 @@ function buildResumen(){
 function abrirExportar(){var txt=buildResumen();document.getElementById("modal-titulo").textContent="Resumen del "+fmtF(getFecha());document.getElementById("export-prev").textContent=txt;document.getElementById("wa-resumen").href="https://wa.me/?text="+encodeURIComponent(txt);document.getElementById("modal-exportar").classList.add("open");}
 function cerrarModal(){document.getElementById("modal-exportar").classList.remove("open");}
 document.getElementById("modal-exportar").addEventListener("click",function(e){if(e.target===this)cerrarModal();});
+document.getElementById("modal-copiar").addEventListener("click",function(e){if(e.target===this)cerrarModalCopiar();});
 function copiarResumen(){navigator.clipboard.writeText(document.getElementById("export-prev").textContent).then(function(){T("Copiado");});}
 function buildMsg(nombre,rec,con,fra,fecha){
   var msg="Hola "+nombre+"! Tus tareas del "+fmtF(fecha)+":\n";
