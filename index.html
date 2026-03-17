@@ -312,6 +312,7 @@ function subAll(){
   dRef.on("value",function(snap){
     var val=snap.val();
     if(!val||!val.recorridos){
+      if(copiando)return;
       var upd={};
       BASE_REC.forEach(function(r){
         var k=db.ref().push().key;
@@ -499,6 +500,7 @@ function renderFrancos(){
   }).join("");
 }
 function renderAll(){renderRecorridos();renderContratados();renderFrancos();}
+var copiando=false;
 function copiarDiaAnterior(){
   var fecha=getFecha();
   var d=new Date(fecha+"T12:00:00");
@@ -512,8 +514,8 @@ function copiarDiaAnterior(){
   db.ref("planillas/"+ayer).once("value",function(snap){
     var val=snap.val();
     if(!val||!val.recorridos){T("No hay datos del "+fmtF(ayer));return;}
+    copiando=true;
     var upd={};
-    upd["planillas/"+fecha]=null;
     if(val.recorridos){
       Object.keys(val.recorridos).forEach(function(k){
         var r=val.recorridos[k];
@@ -528,9 +530,13 @@ function copiarDiaAnterior(){
         upd["planillas/"+fecha+"/contratados/"+nk]={hora:c.hora||"",regreso:c.regreso||"",recorrido:c.recorrido||"",chofer:c.chofer||"",movil:c.movil||"",contratante:c.contratante||""};
       });
     }
-    db.ref().update(upd,function(err){
-      if(err){T("Error: "+err.message);}
-      else{T("Copiado correctamente de "+fmtF(ayer)+"!");}
+    // primero borrar el dia actual, luego escribir los nuevos datos
+    db.ref("planillas/"+fecha).remove(function(){
+      db.ref().update(upd,function(err){
+        copiando=false;
+        if(err){T("Error: "+err.message);}
+        else{T("Copiado correctamente de "+fmtF(ayer)+"!");}
+      });
     });
   });
 }
