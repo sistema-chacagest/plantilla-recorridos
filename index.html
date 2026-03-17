@@ -478,22 +478,45 @@ function updCon(key,campo,val){
 }
 function delCon(key){db.ref("planillas/"+getFecha()+"/contratados/"+key).remove();}
 function renderContratados(){
-  var filas=diaData.contratados.slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
   var tb=document.getElementById("tbody-con");
-  document.getElementById("cnt-con").textContent=filas.length+" registros";
-  if(!filas.length){tb.innerHTML="<tr><td colspan=\"7\" class=\"empty-td\">Sin viajes contratados</td></tr>";return;}
-  tb.innerHTML=filas.map(function(r){
-    var clsC=selClass("c",r.chofer);var clsM=selClass("m",r.movil);
-    return "<tr>"+
-      "<td class=\"hora-bold\" style=\"color:#854F0B\">"+r.hora+"</td>"+
-      "<td style=\"font-weight:500\">"+r.recorrido+"</td>"+
-      "<td><select class=\""+clsC+"\" onchange=\"updCon('"+r._key+"','chofer',this.value);cSel(this,'c')\">"+cOpts(r.chofer)+"</select></td>"+
-      "<td><select class=\""+clsM+"\" onchange=\"updCon('"+r._key+"','movil',this.value);cSel(this,'m')\">"+mOpts(r.movil)+"</select></td>"+
-      "<td><span class=\"badge badge-amber\">"+(r.contratante||"-")+"</span></td>"+
-      "<td style=\"font-size:10px;color:#666\">"+(r.regreso||"-")+"</td>"+
-      "<td class=\"no-print\"><button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delCon('"+r._key+"')\" >x</button></td>"+
-    "</tr>";
-  }).join("");
+  document.getElementById("cnt-con").textContent=diaData.contratados.length+" registros";
+  if(!diaData.contratados.length){tb.innerHTML="<tr><td colspan=\"7\" class=\"empty-td\">Sin viajes contratados</td></tr>";return;}
+  // agrupar por contratante, ordenar dentro de cada grupo por hora
+  var grupos={};
+  var orden=[];
+  diaData.contratados.forEach(function(r){
+    var key=r.contratante||"-";
+    if(!grupos[key]){grupos[key]=[];orden.push(key);}
+    grupos[key].push(r);
+  });
+  // ordenar grupos por la hora minima de cada uno
+  orden.sort(function(a,b){
+    var minA=Math.min.apply(null,grupos[a].map(function(r){return toMin(r.hora);}));
+    var minB=Math.min.apply(null,grupos[b].map(function(r){return toMin(r.hora);}));
+    return minA-minB;
+  });
+  var rows="";
+  orden.forEach(function(contratante){
+    var lista=grupos[contratante].slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
+    // fila encabezado del grupo si hay mas de un contratante distinto
+    if(orden.length>1){
+      rows+="<tr><td colspan=\"7\" style=\"background:#faeeda;color:#854F0B;font-weight:700;font-size:10px;padding:4px 8px;border-bottom:1px solid #f5d9a8\">"+
+        contratante+(lista.length>1?" ("+lista.length+" viajes)":"")+"</td></tr>";
+    }
+    lista.forEach(function(r){
+      var clsC=selClass("c",r.chofer);var clsM=selClass("m",r.movil);
+      rows+="<tr>"+
+        "<td class=\"hora-bold\" style=\"color:#854F0B\">"+r.hora+"</td>"+
+        "<td style=\"font-weight:500\">"+r.recorrido+"</td>"+
+        "<td><select class=\""+clsC+"\" onchange=\"updCon('"+r._key+"','chofer',this.value);cSel(this,'c')\">"+cOpts(r.chofer)+"</select></td>"+
+        "<td><select class=\""+clsM+"\" onchange=\"updCon('"+r._key+"','movil',this.value);cSel(this,'m')\">"+mOpts(r.movil)+"</select></td>"+
+        "<td><span class=\"badge badge-amber\">"+(r.contratante||"-")+"</span></td>"+
+        "<td style=\"font-size:10px;color:#666\">"+(r.regreso||"-")+"</td>"+
+        "<td class=\"no-print\"><button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delCon('"+r._key+"')\" >x</button></td>"+
+      "</tr>";
+    });
+  });
+  tb.innerHTML=rows;
 }
 function agregarFranco(){
   var chofer=document.getElementById("nf-chofer").value;
