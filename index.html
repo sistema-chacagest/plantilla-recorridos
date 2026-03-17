@@ -120,6 +120,8 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
     <span class="topbar-title">Recorridos del dia</span>
     <input type="date" id="fecha"/>
     <div class="sync-bar"><span class="sync-dot" id="sync-dot"></span><span id="sync-txt">conectando...</span></div>
+    <button class="btn btn-sm" style="background:#117a8b;color:white;border-color:transparent" onclick="copiarDiaAnterior()">Copiar dia anterior</button>
+    <button class="btn btn-sm" style="background:#117a8b;color:white;border-color:transparent" onclick="copiarDiaAnterior()">Copiar dia anterior</button>
     <button class="btn btn-blue btn-sm" onclick="toggleForm('form-rec')">+ Recorrido</button>
     <button class="btn btn-amber btn-sm" onclick="toggleForm('form-con')">+ Contratado</button>
     <button class="btn btn-purple btn-sm" onclick="toggleForm('form-fra')">+ Franco</button>
@@ -286,7 +288,109 @@ var BASE_REC=[
 
 var todayStr=new Date().toISOString().split("T")[0];
 document.getElementById("fecha").value=todayStr;
-document.getElementById("fecha").addEventListener("change",function(){ unsubAll(); subAll(); });
+document.getElementById("fecha").addEventListener("change",function(){ unfunction copiarDiaAnterior(){
+  var hoy=getFecha();
+  // calcular fecha anterior
+  var d=new Date(hoy+"T00:00:00");
+  d.setDate(d.getDate()-1);
+  var ayer=d.toISOString().split("T")[0];
+  // verificar que el dia actual no tenga datos ya
+  db.ref("planillas/"+hoy).once("value").then(function(snapHoy){
+    var yaHayDatos=snapHoy.exists() && snapHoy.val() && snapHoy.val().recorridos && Object.keys(snapHoy.val().recorridos).length > 0;
+    // contar si tiene choferes asignados
+    var tieneAsignados=false;
+    if(yaHayDatos){
+      var recs=snapHoy.val().recorridos;
+      Object.keys(recs).forEach(function(k){ if(recs[k].chofer) tieneAsignados=true; });
+    }
+    if(tieneAsignados){
+      if(!confirm("El dia ya tiene choferes asignados. Confirmas que queres sobrescribir con el dia anterior?")) return;
+    }
+    // leer dia anterior
+    db.ref("planillas/"+ayer).once("value").then(function(snapAyer){
+      var val=snapAyer.val();
+      if(!val || !val.recorridos){
+        T("No hay datos del dia anterior ("+fmtF(ayer)+")");
+        return;
+      }
+      // copiar recorridos, contratados y francos del dia anterior
+      var upd={};
+      // recorridos: copiar con los mismos choferes y moviles
+      Object.keys(val.recorridos).forEach(function(k){
+        var r=val.recorridos[k];
+        var nuevoKey=db.ref().push().key;
+        upd["planillas/"+hoy+"/recorridos/"+nuevoKey]={
+          hora:r.hora||"",
+          recorrido:r.recorrido||"",
+          chofer:r.chofer||"",
+          movil:r.movil||"",
+          nota:r.nota||""
+        };
+      });
+      // contratados: NO copiar (son viajes especiales de ese dia)
+      // francos: NO copiar (cambian cada dia)
+      // borrar datos actuales del dia y escribir los nuevos
+      db.ref("planillas/"+hoy).remove().then(function(){
+        db.ref().update(upd).then(function(){
+          T("Recorridos copiados del "+fmtF(ayer)+" - Modifica lo que necesites!");
+        });
+      });
+    }).catch(function(){ T("Error al leer el dia anterior"); });
+  });
+}
+
+subAll(); function copiarDiaAnterior(){
+  var hoy=getFecha();
+  // calcular fecha anterior
+  var d=new Date(hoy+"T00:00:00");
+  d.setDate(d.getDate()-1);
+  var ayer=d.toISOString().split("T")[0];
+  // verificar que el dia actual no tenga datos ya
+  db.ref("planillas/"+hoy).once("value").then(function(snapHoy){
+    var yaHayDatos=snapHoy.exists() && snapHoy.val() && snapHoy.val().recorridos && Object.keys(snapHoy.val().recorridos).length > 0;
+    // contar si tiene choferes asignados
+    var tieneAsignados=false;
+    if(yaHayDatos){
+      var recs=snapHoy.val().recorridos;
+      Object.keys(recs).forEach(function(k){ if(recs[k].chofer) tieneAsignados=true; });
+    }
+    if(tieneAsignados){
+      if(!confirm("El dia ya tiene choferes asignados. Confirmas que queres sobrescribir con el dia anterior?")) return;
+    }
+    // leer dia anterior
+    db.ref("planillas/"+ayer).once("value").then(function(snapAyer){
+      var val=snapAyer.val();
+      if(!val || !val.recorridos){
+        T("No hay datos del dia anterior ("+fmtF(ayer)+")");
+        return;
+      }
+      // copiar recorridos, contratados y francos del dia anterior
+      var upd={};
+      // recorridos: copiar con los mismos choferes y moviles
+      Object.keys(val.recorridos).forEach(function(k){
+        var r=val.recorridos[k];
+        var nuevoKey=db.ref().push().key;
+        upd["planillas/"+hoy+"/recorridos/"+nuevoKey]={
+          hora:r.hora||"",
+          recorrido:r.recorrido||"",
+          chofer:r.chofer||"",
+          movil:r.movil||"",
+          nota:r.nota||""
+        };
+      });
+      // contratados: NO copiar (son viajes especiales de ese dia)
+      // francos: NO copiar (cambian cada dia)
+      // borrar datos actuales del dia y escribir los nuevos
+      db.ref("planillas/"+hoy).remove().then(function(){
+        db.ref().update(upd).then(function(){
+          T("Recorridos copiados del "+fmtF(ayer)+" - Modifica lo que necesites!");
+        });
+      });
+    }).catch(function(){ T("Error al leer el dia anterior"); });
+  });
+}
+
+subAll(); });
 
 var choferes=[], moviles=[], diaData={recorridos:[],contratados:[],francos:[]};
 var unsubs=[];
@@ -674,6 +778,111 @@ function enviarTodos(){
     setTimeout(function(){ window.open("https://wa.me/"+ch.tel+"?text="+encodeURIComponent(msg),"_blank"); },idx*700);
   });
   T("Abriendo WhatsApp...");
+}
+
+function copiarDiaAnterior(){
+  var hoy=getFecha();
+  // calcular fecha anterior
+  var d=new Date(hoy+"T00:00:00");
+  d.setDate(d.getDate()-1);
+  var ayer=d.toISOString().split("T")[0];
+  // verificar que el dia actual no tenga datos ya
+  db.ref("planillas/"+hoy).once("value").then(function(snapHoy){
+    var yaHayDatos=snapHoy.exists() && snapHoy.val() && snapHoy.val().recorridos && Object.keys(snapHoy.val().recorridos).length > 0;
+    // contar si tiene choferes asignados
+    var tieneAsignados=false;
+    if(yaHayDatos){
+      var recs=snapHoy.val().recorridos;
+      Object.keys(recs).forEach(function(k){ if(recs[k].chofer) tieneAsignados=true; });
+    }
+    if(tieneAsignados){
+      if(!confirm("El dia ya tiene choferes asignados. Confirmas que queres sobrescribir con el dia anterior?")) return;
+    }
+    // leer dia anterior
+    db.ref("planillas/"+ayer).once("value").then(function(snapAyer){
+      var val=snapAyer.val();
+      if(!val || !val.recorridos){
+        T("No hay datos del dia anterior ("+fmtF(ayer)+")");
+        return;
+      }
+      // copiar recorridos, contratados y francos del dia anterior
+      var upd={};
+      // recorridos: copiar con los mismos choferes y moviles
+      Object.keys(val.recorridos).forEach(function(k){
+        var r=val.recorridos[k];
+        var nuevoKey=db.ref().push().key;
+        upd["planillas/"+hoy+"/recorridos/"+nuevoKey]={
+          hora:r.hora||"",
+          recorrido:r.recorrido||"",
+          chofer:r.chofer||"",
+          movil:r.movil||"",
+          nota:r.nota||""
+        };
+      });
+      // contratados: NO copiar (son viajes especiales de ese dia)
+      // francos: NO copiar (cambian cada dia)
+      // borrar datos actuales del dia y escribir los nuevos
+      db.ref("planillas/"+hoy).remove().then(function(){
+        db.ref().update(upd).then(function(){
+          T("Recorridos copiados del "+fmtF(ayer)+" - Modifica lo que necesites!");
+        });
+      });
+    }).catch(function(){ T("Error al leer el dia anterior"); });
+  });
+}
+
+function copiarDiaAnterior(){
+  var fecha=getFecha();
+  var d=new Date(fecha+"T12:00:00");
+  d.setDate(d.getDate()-1);
+  var ayer=d.toISOString().split("T")[0];
+  // verificar si el dia actual ya tiene datos
+  var diaActual=planillas[fecha]||diaData;
+  var tieneData=(diaData.recorridos&&diaData.recorridos.length>0&&diaData.recorridos.some(function(r){return r.chofer;})) ||
+               (diaData.contratados&&diaData.contratados.length>0) ||
+               (diaData.francos&&diaData.francos.length>0);
+  if(tieneData){
+    if(!confirm("El dia "+fmtF(fecha)+" ya tiene datos cargados. Queres reemplazarlos con los del dia anterior ("+fmtF(ayer)+")?")) return;
+  }
+  T("Copiando datos del "+fmtF(ayer)+"...");
+  db.ref("planillas/"+ayer).once("value", function(snap){
+    var val=snap.val();
+    if(!val||!val.recorridos){
+      T("No hay datos del "+fmtF(ayer));
+      return;
+    }
+    var upd={};
+    // limpiar dia actual primero
+    upd["planillas/"+fecha]=null;
+    // copiar recorridos (con chofer y movil pero sin nota)
+    if(val.recorridos){
+      Object.keys(val.recorridos).forEach(function(k){
+        var r=val.recorridos[k];
+        var newKey=db.ref().push().key;
+        upd["planillas/"+fecha+"/recorridos/"+newKey]={
+          hora:r.hora, recorrido:r.recorrido,
+          chofer:r.chofer||"", movil:r.movil||"", nota:""
+        };
+      });
+    }
+    // copiar contratados
+    if(val.contratados){
+      Object.keys(val.contratados).forEach(function(k){
+        var c=val.contratados[k];
+        var newKey=db.ref().push().key;
+        upd["planillas/"+fecha+"/contratados/"+newKey]={
+          hora:c.hora||"", regreso:c.regreso||"",
+          recorrido:c.recorrido||"", chofer:c.chofer||"",
+          movil:c.movil||"", contratante:c.contratante||""
+        };
+      });
+    }
+    // NO copiar francos (son especificos de cada dia)
+    db.ref().update(upd, function(err){
+      if(err){ T("Error al copiar: "+err.message); }
+      else { T("Dia "+fmtF(ayer)+" copiado correctamente!"); }
+    });
+  });
 }
 
 subAll();
