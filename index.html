@@ -190,10 +190,14 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
       <div>
         <div class="col-header col-header-amber"><span>VIAJES CONTRATADOS</span><span id="cnt-con" style="font-size:9px;opacity:.7"></span></div>
         <div class="tbl-wrap"><table><thead><tr>
-          <th class="th-amber" style="width:32px">HORA</th><th class="th-amber">RECORRIDO</th>
-          <th class="th-amber">CHOFER</th><th class="th-amber">MOVIL</th>
-          <th class="th-amber">CONTRATANTE</th><th class="th-amber" style="width:38px">REG. HORA</th><th class="th-amber" style="width:60px">RETORNO</th>
-          <th class="th-amber no-print" style="width:20px"></th>
+          <th class="th-amber" style="width:38px">HORA</th>
+          <th class="th-amber">RECORRIDO</th>
+          <th class="th-amber">CHOFER</th>
+          <th class="th-amber">MOVIL</th>
+          <th class="th-amber">CONTRATANTE</th>
+          <th class="th-amber" style="width:42px">REG.</th>
+          <th class="th-amber" style="width:68px">RETORNO</th>
+          <th class="th-amber no-print" style="width:50px"></th>
         </tr></thead><tbody id="tbody-con"></tbody></table></div>
       </div>
       <div>
@@ -615,15 +619,12 @@ function renderContratados(){
   var tb=document.getElementById("tbody-con");
   document.getElementById("cnt-con").textContent=diaData.contratados.length+" registros";
   if(!diaData.contratados.length){tb.innerHTML="<tr><td colspan=\"8\" class=\"empty-td\">Sin viajes contratados</td></tr>";return;}
-  // agrupar por contratante, ordenar dentro de cada grupo por hora
-  var grupos={};
-  var orden=[];
+  var grupos={};var orden=[];
   diaData.contratados.forEach(function(r){
     var key=r.contratante||"-";
     if(!grupos[key]){grupos[key]=[];orden.push(key);}
     grupos[key].push(r);
   });
-  // ordenar grupos por la hora minima de cada uno
   orden.sort(function(a,b){
     var minA=Math.min.apply(null,grupos[a].map(function(r){return toMin(r.hora);}));
     var minB=Math.min.apply(null,grupos[b].map(function(r){return toMin(r.hora);}));
@@ -632,25 +633,25 @@ function renderContratados(){
   var rows="";
   orden.forEach(function(contratante){
     var lista=grupos[contratante].slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
-    // fila encabezado del grupo si hay mas de un contratante distinto
     if(orden.length>1){
       rows+="<tr><td colspan=\"8\" style=\"background:#faeeda;color:#854F0B;font-weight:700;font-size:10px;padding:4px 8px;border-bottom:1px solid #f5d9a8\">"+
         contratante+(lista.length>1?" ("+lista.length+" viajes)":"")+"</td></tr>";
     }
     lista.forEach(function(r){
-      var clsC=selClass("c",r.chofer);var clsM=selClass("m",r.movil);
-      var retStyle=r.fechaRetorno?"font-size:10px;padding:2px 4px;border:1px solid #e57373;border-radius:5px;background:#fff8f8;color:#A32D2D;font-weight:700;width:100px":"font-size:10px;padding:2px 4px;border:1px solid #ccc;border-radius:5px;background:white;color:#555;width:100px";
+      var choferTxt=r.chofer?"<span class=\"badge badge-green\">"+r.chofer+"</span>":"<span style=\"color:#bbb;font-size:10px\">Sin asignar</span>";
+      var movilTxt=r.movil?"<span class=\"badge badge-purple\">"+r.movil+"</span>":"<span style=\"color:#bbb;font-size:10px\">-</span>";
+      var retornoTxt=r.fechaRetorno?"<span style=\"font-weight:700;color:#A32D2D;font-size:10px\">"+fmtF(r.fechaRetorno)+"</span>":"<span style=\"color:#bbb;font-size:10px\">-</span>";
       rows+="<tr>"+
         "<td class=\"hora-bold\" style=\"color:#854F0B\">"+r.hora+"</td>"+
         "<td style=\"font-weight:500\">"+r.recorrido+"</td>"+
-        "<td><select class=\""+clsC+"\" onchange=\"updCon('"+r._key+"','chofer',this.value);cSel(this,'c')\">"+cOpts(r.chofer)+"</select></td>"+
-        "<td><select class=\""+clsM+"\" onchange=\"updCon('"+r._key+"','movil',this.value);cSel(this,'m')\">"+mOpts(r.movil)+"</select></td>"+
+        "<td>"+choferTxt+"</td>"+
+        "<td>"+movilTxt+"</td>"+
         "<td><span class=\"badge badge-amber\">"+(r.contratante||"-")+"</span></td>"+
         "<td style=\"font-size:10px;color:#666\">"+(r.regreso||"-")+"</td>"+
-        "<td><input type=\"date\" value=\""+(r.fechaRetorno||"")+"\" style=\""+retStyle+"\" onchange=\"updConFechaRetorno('"+r._key+"',this.value)\"/></td>"+
-        "<td class=\"no-print\">"+
-          "<button class=\"btn btn-sm\" style=\"color:#BA7517;border:none\" onclick=\"abrirEditarCon('"+r._key+"')\" title=\"Editar\">✏️</button>"+
-          "<button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delCon('"+r._key+"')\" >x</button>"+
+        "<td>"+retornoTxt+"</td>"+
+        "<td class=\"no-print\" style=\"white-space:nowrap\">"+
+          "<button class=\"btn btn-sm btn-amber\" onclick=\"abrirEditarCon('"+r._key+"')\">Editar</button> "+
+          "<button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delCon('"+r._key+"')\">x</button>"+
         "</td>"+
       "</tr>";
     });
