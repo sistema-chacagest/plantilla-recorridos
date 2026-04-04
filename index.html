@@ -268,6 +268,32 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
     </div>
   </div>
 </div>
+<div class="modal-bg" id="modal-editar-con">
+  <div class="modal" style="max-width:480px">
+    <h3>✏️ Editar viaje contratado</h3>
+    <input type="hidden" id="ec-key"/>
+    <div class="fgrid" style="grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div class="field"><label>Hora ida</label><input class="il" id="ec-hora" placeholder="4:30"/></div>
+      <div class="field"><label>Regreso (hora)</label><input class="il" id="ec-regreso" placeholder="19:00"/></div>
+    </div>
+    <div class="fgrid" style="grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div class="field"><label>Recorrido</label><input class="il" id="ec-rec" placeholder="Chacabuco/PGSM"/></div>
+      <div class="field"><label>Contratante</label><input class="il" id="ec-cont" placeholder="Cofco"/></div>
+    </div>
+    <div class="fgrid" style="grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div class="field"><label>Chofer</label><select class="sel" id="ec-chofer" style="max-width:100%;width:100%"><option value="">-</option></select></div>
+      <div class="field"><label>Movil</label><select class="sel" id="ec-movil" style="max-width:100%;width:100%"><option value="">-</option></select></div>
+    </div>
+    <div class="field" style="margin-bottom:12px">
+      <label>Fecha retorno <span style="color:#A32D2D;font-size:10px">(si regresa otro día)</span></label>
+      <input type="date" class="il" id="ec-fecha-retorno" style="font-size:12px;padding:5px 8px"/>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-amber" onclick="guardarEdicionCon()" style="flex:1">Guardar cambios</button>
+      <button class="btn" onclick="cerrarModalEditarCon()">Cancelar</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -546,6 +572,44 @@ function updConFechaRetorno(key,val){
     T(val?"Fecha retorno guardada: "+fmtF(val):"Fecha retorno eliminada");
   });
 }
+function abrirEditarCon(key){
+  var r=diaData.contratados.find(function(x){return x._key===key;});
+  if(!r) return;
+  document.getElementById("ec-key").value=key;
+  document.getElementById("ec-hora").value=r.hora||"";
+  document.getElementById("ec-regreso").value=r.regreso||"";
+  document.getElementById("ec-rec").value=r.recorrido||"";
+  document.getElementById("ec-cont").value=r.contratante||"";
+  document.getElementById("ec-fecha-retorno").value=r.fechaRetorno||"";
+  // poblar selects con choferes y moviles
+  var ecC=document.getElementById("ec-chofer");
+  ecC.innerHTML="<option value=\"\">-</option>"+choferes.map(function(c){return "<option value=\""+c.nombre+"\""+(c.nombre===r.chofer?" selected":"")+">"+c.nombre+"</option>";}).join("");
+  var ecM=document.getElementById("ec-movil");
+  ecM.innerHTML="<option value=\"\">-</option>"+moviles.map(function(m){return "<option value=\""+m.pat+"\""+(m.pat===r.movil?" selected":"")+">"+m.pat+(m.desc?" ("+m.desc+")":"")+"</option>";}).join("");
+  document.getElementById("modal-editar-con").classList.add("open");
+}
+function cerrarModalEditarCon(){
+  document.getElementById("modal-editar-con").classList.remove("open");
+}
+function guardarEdicionCon(){
+  var key=document.getElementById("ec-key").value;
+  var upd={
+    hora:document.getElementById("ec-hora").value.trim(),
+    regreso:document.getElementById("ec-regreso").value.trim(),
+    recorrido:document.getElementById("ec-rec").value.trim(),
+    contratante:document.getElementById("ec-cont").value.trim(),
+    chofer:document.getElementById("ec-chofer").value,
+    movil:document.getElementById("ec-movil").value,
+    fechaRetorno:document.getElementById("ec-fecha-retorno").value
+  };
+  if(!upd.hora||!upd.recorrido) return T("Hora y recorrido son obligatorios");
+  db.ref("planillas/"+getFecha()+"/contratados/"+key).update(upd).then(function(){
+    cerrarModalEditarCon();
+    cargarAllContratados();
+    T("Viaje actualizado");
+  });
+}
+document.getElementById("modal-editar-con").addEventListener("click",function(e){if(e.target===this)cerrarModalEditarCon();});
 function delCon(key){db.ref("planillas/"+getFecha()+"/contratados/"+key).remove().then(function(){cargarAllContratados();});}
 function renderContratados(){
   var tb=document.getElementById("tbody-con");
@@ -584,7 +648,10 @@ function renderContratados(){
         "<td><span class=\"badge badge-amber\">"+(r.contratante||"-")+"</span></td>"+
         "<td style=\"font-size:10px;color:#666\">"+(r.regreso||"-")+"</td>"+
         "<td><input type=\"date\" value=\""+(r.fechaRetorno||"")+"\" style=\""+retStyle+"\" onchange=\"updConFechaRetorno('"+r._key+"',this.value)\"/></td>"+
-        "<td class=\"no-print\"><button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delCon('"+r._key+"')\" >x</button></td>"+
+        "<td class=\"no-print\">"+
+          "<button class=\"btn btn-sm\" style=\"color:#BA7517;border:none\" onclick=\"abrirEditarCon('"+r._key+"')\" title=\"Editar\">✏️</button>"+
+          "<button class=\"btn btn-sm\" style=\"color:#c0392b;border:none\" onclick=\"delCon('"+r._key+"')\" >x</button>"+
+        "</td>"+
       "</tr>";
     });
   });
