@@ -195,8 +195,7 @@ select.sel,select.sel-c,select.sel-m{border:none!important;background:transparen
           <th class="th-amber">CHOFER</th>
           <th class="th-amber">MOVIL</th>
           <th class="th-amber">CONTRATANTE</th>
-          <th class="th-amber" style="width:42px">REG.</th>
-          <th class="th-amber" style="width:68px">RETORNO</th>
+          <th class="th-amber" style="width:75px">RETORNO</th>
           <th class="th-amber no-print" style="width:50px"></th>
         </tr></thead><tbody id="tbody-con"></tbody></table></div>
       </div>
@@ -618,7 +617,7 @@ function delCon(key){db.ref("planillas/"+getFecha()+"/contratados/"+key).remove(
 function renderContratados(){
   var tb=document.getElementById("tbody-con");
   document.getElementById("cnt-con").textContent=diaData.contratados.length+" registros";
-  if(!diaData.contratados.length){tb.innerHTML="<tr><td colspan=\"8\" class=\"empty-td\">Sin viajes contratados</td></tr>";return;}
+  if(!diaData.contratados.length){tb.innerHTML="<tr><td colspan=\"7\" class=\"empty-td\">Sin viajes contratados</td></tr>";return;}
   var grupos={};var orden=[];
   diaData.contratados.forEach(function(r){
     var key=r.contratante||"-";
@@ -634,7 +633,7 @@ function renderContratados(){
   orden.forEach(function(contratante){
     var lista=grupos[contratante].slice().sort(function(a,b){return toMin(a.hora)-toMin(b.hora);});
     if(orden.length>1){
-      rows+="<tr><td colspan=\"8\" style=\"background:#faeeda;color:#854F0B;font-weight:700;font-size:10px;padding:4px 8px;border-bottom:1px solid #f5d9a8\">"+
+      rows+="<tr><td colspan=\"7\" style=\"background:#faeeda;color:#854F0B;font-weight:700;font-size:10px;padding:4px 8px;border-bottom:1px solid #f5d9a8\">"+
         contratante+(lista.length>1?" ("+lista.length+" viajes)":"")+"</td></tr>";
     }
     lista.forEach(function(r){
@@ -647,7 +646,6 @@ function renderContratados(){
         "<td>"+choferTxt+"</td>"+
         "<td>"+movilTxt+"</td>"+
         "<td><span class=\"badge badge-amber\">"+(r.contratante||"-")+"</span></td>"+
-        "<td style=\"font-size:10px;color:#666\">"+(r.regreso||"-")+"</td>"+
         "<td>"+retornoTxt+"</td>"+
         "<td class=\"no-print\" style=\"white-space:nowrap\">"+
           "<button class=\"btn btn-sm btn-amber\" onclick=\"abrirEditarCon('"+r._key+"')\">Editar</button> "+
